@@ -1,0 +1,252 @@
+---
+title: Macroevolutionary imprints on the assembly of frugivory networks
+author: Gustavo Burin, Paulo R. Guimarães Jr., Tiago B. Quental
+date: August 12th, 2019
+output:
+  bookdown::html_document2:
+    code_folding: hide
+    toc: true
+    toc_float: true
+fontsize: 22pt
+---
+
+```{r echo = FALSE, eval = FALSE}
+
+library("rmarkdown")
+library("ggfortify")
+source("./R/summary_mcmcglmm_global_zscore.R")
+source("./R/summary_mcmcglmm_dynamics_zscore.R")
+source("./R/summary_mcmcglmm_latitude_zscore.R")
+
+```
+
+<style type="text/css">
+
+body{ /* Normal  */
+      font-size: 18px;
+  }
+td {  /* Table  */
+  font-size: 8px;
+}
+h1.title {
+  font-size: 38px;
+  color: DarkRed;
+}
+h1 { /* Header 1 */
+  font-size: 28px;
+  color: DarkBlue;
+}
+h2 { /* Header 2 */
+    font-size: 22px;
+  color: DarkBlue;
+}
+h3 { /* Header 3 */
+  font-size: 18px;
+  font-family: "Times New Roman", Times, serif;
+  color: DarkBlue;
+}
+code.r{ /* Code block */
+    font-size: 12px;
+}
+pre { /* Code block - determines code spacing between lines */
+    font-size: 14px;
+}
+p.caption{ /* Fontsize for figure captions */
+    font-size: 14px;
+}
+</style>
+	
+# Abstract
+  
+Biological interactions are a key aspect of ecological communities. Current interaction network structures are snapshots of dynamic processes of community assembly. Thus, assessing the temporal dynamics of ecological networks or the deep time mechanisms related to the assembly of those networks are key to better understand biodiversity changes in broader time scales. However, knowledge on the macroevolutionary patterns behind the assembly of these networks is still scarce. Here we show that more central species in frugivory networks belong to lineages with higher macroevolutionary stability. Globally, we found a non-linear negative relationship between centrality measures and macroevolutionary stability that is modulated by water availability. This relationship is driven by networks that are present in biomes that have contracted in area over the last 50MY (contrasted to biomes that expanded). Our results demonstrate how network structure may be linked to macroevolutionary patterns resulting in more stable lineages playing key roles in seed dispersal. We also suggest that plant phenology may be an important factor shaping these relations. To our knowledge this study is the first to show a macroevolutionary imprints on the assembly of frugivory networks. 
+
+# Introduction
+
+- Biological interactions are motors of diversification
+- Seed dispersal is a fundamental ecosystem service
+- 70-94% of tropical wood species are dispersed by vertebrates
+- 30% of bird species have fruits in their diets
+- Network studies usually lack (macro)evolutionary perspectives
+- Mutualism with plants affected diversification of some vertebrates (Gómez & Verdú, 2012)
+- We can expect that diversity dynamics might be relevant during network assembly
+
+# Material and Methods
+
+To investigate the sorting of diversification rates during the assembly of current ecological networks we first characterized each frugivore species with respect to its potential ecological role in the network, and then estimated speciation and extinction rates related to each bird lineage using an almost complete molecular phylogeny (see below). We then tested for a correlation between the network metric and the macroevolutionary rate (see figure \ref{fig:cap3fig1} for a cartoon version of the general approach) using phylogenetic generalized least square tests (PGLS - \cite{martins1997}). Phylogenetic correction was used because the network metrics showed significant phylogenetic signal.  Instead of speciation and extinction rates themselves, we used as our evolutionary metric called “epsilon” which is an extinction fraction. This is nothing more than the relative magnitude of extinction with respect to speciation rate. This rate is typically described as “turnover” rate and gives a sense of how labile a given lineage is. To our purposes, this better represents what we would call evolutionary reliability of a given lineage. 
+
+## Diversification Rates
+
+To estimate speciation and extinction rates we used the most recent and virtually complete bird phylogeny (\cite{jetz2012}). The phylogeny comprises the vast majority of bird species (9993 species in the phylogeny from an estimated total of 10,064 species – 99.3\%) (\href{BirdLife.org, 2013}{http://www.birdlife.org/}). To avoid any potential bias introduced by adding species without DNA sequences (using a pure-birth algorithm) on our estimates of speciation and extinction rates (\cite{rabosky2015}), we used the trees that contain only species for which molecular data was available. We analyzed the bird molecular phylogeny using a Bayesian framework (BAMM v. 2.5; \cite{rabosky2014}) to estimate the rates of speciation and extinction while explicitly taking into account the sampling fraction of species. The incompleteness (about 1/3 of species without DNA data) was accounted for by informing the percentage of missing species within each clade of the maximum clade credibility tree obtained by Jetz et al. (2012). Rabosky (2014) have developed an algorithm that finds subtrees within a phylogeny which share speciation and extinction rates through a bayesian framework using reversible-jump Markov Chain Monte Carlo sampling. Each diversification shift configuration has an associated posterior probability, and each configuration can assign different diversification rates to a particular species or clade. Since we do not know which is the true configuration (and there is no practical need to know it), we will use the mean rates averaged by the marginal posterior probabilities of each distinct shift configuration. Lastly, we calculated our rates of interest (epsilon - extinction fraction - and net diversification) from the mean speciation and extinction rates for each species. These two rates represent different aspects of what we assume to be a stable/reliable lineage: one lineage can be stable/reliable either because accumulates a large number of species in a relatively short period (high net diversification), and/or by having each lineage persisting for a long time (low extinction fraction). To our purposes, we thus assume that the combination of the two rates (each of them plus their interaction) represents what we would call evolutionary reliability of a given lineage.
+
+## Ecological Networks
+
+To evaluate the ecological role of different species we used data from 34 different frugivory networks compiled by \cite{pigot2016} that comprise both temperate and tropical areas and a total of 546 unique bird species (838 total unique interactions). From the original dataset, we discarded 5 networks due to taxonomic bias. Although some networks (23) were weighted, i.e. had information on the strength of interactions, we decided to binarize all networks for two reasons. First, more pragmatically, we could work with a larger dataset. Second, we also know that interaction networks are quite plastic, varying in structure and richness in short periods of time (REFS Matt, Ponisio, etc.). Therefore, information on interaction strength (that is commonly assessed using frequency of interaction as proxy) might add too much noise if we assume that there is a somewhat stable network topology over longer (possibly geological) time scales. Nevertheless, supplementary figure SXXX shows that the relative importance of species do not change significantly whether we calculate it using the weighted or the binarized network. Also we removed pairs of species that only interacted with each other, and were disconnected from the rest of the network. This was done because some of the network metrics are not defined for networks that are fully connected.
+
+To characterize each species’ ecological role within the compiled dataset we investigated the different properties of the nodes of the networks (species) by calculating three different centrality metrics: degree (number of interactions), closeness (proportion of shortest paths between two nodes of the network that pass through the focal node) and katz (proportion of all possible paths between two nodes of the network that pass through the focal node). Such metrics provide us with information about the position each species takes part on the network as a whole (\cite{bluthgen2008}; \cite{spotswood2012}). To be able to combine the ecological roles estimated for different networks (that have different properties such as number of species, connectance, etc.) into a single analysis, we first standardized the three metrics by calculating the z-scores (\cite{olesen2007}) for each metric by network. We used the three z-scored centrality metrics to perform a Principal Component Analysis (PCA) in order to obtain a single score that comprised different aspects of the network position (as a proxy for the ecological role). We used only the first Principal Component since it explained approximately 93.3% of the variance in centrality values.
+
+## Uncertainties
+
+We incorporated in our analyses two distinct sources of uncertainty. The first one is related to the true evolutionary history of birds. All phylogenies are hypotheses, and therefore we cannot rely on any single particular hypothesis as the true one. Thus, to incorporate the phylogenetic uncertainty we used 200 different topologies from the bird phylogeny from Jetz et al. 2012 (100 of each backbone) to both estimate the rates of diversification and to take into account the phylogenetic structure of the residuals in the linear model. The other source of uncertainty comes from the networks. From all the species in the compiled dataset (Ntot = XXXX), XXXX are part of more than one network (up to 6). Therefore, there is no way of attributing a single centrality value to those species. This does not mean that the centrality values for species that appear in only one network is the “true” value, but it is the only information we have about the ecological role.
+
+## Modelling
+
+We tested the correlation between ecological roles and macroevolutionary dynamics using a Bayesian generalized linear mixed model (MCMCglmm), implemented in the R package MCMCglmm (Hadfield, 2019). This framework allows us to naturally incorporate both sources of uncertainty. By using species identity and the phylogenetic structure as random factors, we can account for intraspecific variation in the ecological roles on the estimation of the regression parameters while simultaneously controlling for the phylogenetic of the residuals. Moreover, by combining the posterior distributions of parameter values using rates from different trees (topologies), we also can account for phylogenetic uncertainty.
+
+## Co-Factors
+
+Because both the intensity and quality of ecological interactions are known to vary between latitudes, landscapes and even altitudes (\cite{roslin2017}) we ran three classes of models: global (with all networks combined), by latitude (separating networks that are located either in tropical or extra-tropical latitudes) and by dynamics (separating networks that are located in biomes that are either contracting or expanding in area over the last 50MY - sensu Jetz & Fine 2012). In all the three classes we used four climatic variables as co-factors, namely annual mean temperature, temperature seasonality, annual precipitation and precipitation seasonality. To summarize environmental conditions and avoid overparameterization of the models, we ran a PCA with the four climatic variables, and used the first and second PC’s as they aligned well with the raw temperature and precipitation variables (PC 1 and 2, respectively). The climatic data were obtained from the WorldClim database version 2.0 (\cite{fick2017}).
+
+Lastly, to test if the sorting of species by the network structure is a phenomenon that depends on the absolute or the relative diversification rates (i.e. if rates of a given species are higher or lower than other species within the same network), we ran each of the three classes of models previously described using raw, and standardized (z-score) rates.
+
+# Results
+
+## Climatic PCA
+
+```{r fig1, fig.cap = "PCA of the climatic variables used in the study. It is worth noting that temperature variables align well with PC1 and precipitation align well with PC2 - although there is some of it on PC1 as well"}
+
+biplot(clim.pca)
+
+```
+
+## PCA centrality + Contribution to Nestedness
+
+```{r fig2, fig.width = 11, fig.height = 12, fig.cap = "A: PCA of the centrality metrics (degree, closeness and katz) used in the study. The PCA was calculated using all metrics scaled per network and combined in a single dataset and PC1 was used as the general centrality since it explains 93.38% of the total variance."}
+
+pca.cent <- autoplot(prcomp(full.table.bin[, c("degree.z", "closeness.z", "katz.z")], scale = FALSE), loadings = TRUE, loadings.label = TRUE, loadings.label.size = 8)
+pca.contrib <- ggplot(data = fulldata.net.bin) +
+  geom_point(aes(x = pca, y = contrib.nest, colour = lat.clim), alpha = 0.7) +
+  geom_smooth(aes(x = pca, y = contrib.nest, colour = lat.clim), method = "lm", se = FALSE, linetype = "dashed", alpha = 0.3, size = 0.5) +
+  scale_colour_brewer(palette = "Set1", direction = -1) +
+  labs(x = "PCA centrality", y = "Contribution to Nestedness", colour = "Latitude") +
+  theme(legend.position = "top")
+
+
+deg.contrib <- 
+ggplot(data = fulldata.net.bin) +
+  geom_point(aes(x = degree.z, y = contrib.nest, colour = lat.clim), alpha = 0.7) +
+  geom_smooth(aes(x = pca, y = contrib.nest, colour = lat.clim), method = "lm", se = FALSE, linetype = "dashed", alpha = 0.3, size = 0.5) +
+  scale_colour_brewer(palette = "Set1", direction = -1) +
+  labs(x = "Degree centrality", y = "Contribution to Nestedness", colour = "Latitude") +
+  theme(legend.position = "none")
+
+clos.contrib <- 
+ggplot(data = fulldata.net.bin) +
+  geom_point(aes(x = closeness.z, y = contrib.nest, colour = lat.clim), alpha = 0.7) +
+  geom_smooth(aes(x = pca, y = contrib.nest, colour = lat.clim), method = "lm", se = FALSE, linetype = "dashed", alpha = 0.3, size = 0.5) +
+  scale_colour_brewer(palette = "Set1", direction = -1) +
+  labs(x = "Closeness centrality", y = "Contribution to Nestedness", colour = "Latitude") +
+  theme(legend.position = "none")
+
+katz.contrib <- 
+ggplot(data = fulldata.net.bin) +
+  geom_point(aes(x = katz.z, y = contrib.nest, colour = lat.clim), alpha = 0.7) +
+  geom_smooth(aes(x = pca, y = contrib.nest, colour = lat.clim), method = "lm", se = FALSE, linetype = "dashed", alpha = 0.3, size = 0.5) +
+  scale_colour_brewer(palette = "Set1", direction = -1) +
+  labs(x = "Katz centrality", y = "Contribution to Nestedness", colour = "Latitude") +
+  theme(legend.position = "none")
+
+grid1 <- plot_grid(pca.cent,
+          pca.contrib,
+          align = 'h',
+          ncol = 2,
+          labels = LETTERS[1:2],
+          axis = "x"
+          )
+
+grid2 <- plot_grid(deg.contrib,
+          clos.contrib,
+          katz.contrib,
+          align = 'h',
+          ncol = 3,
+          labels = LETTERS[3:5],
+          axis = "x"
+          )
+
+plot_grid(grid1,
+          grid2,
+          nrow = 2
+          )
+
+```
+
+## MCMCglmm - Global Analysis
+
+In figure \@ref(fig:fig3) we see that the more stable a species is (either by having low Epsilon and/or high Net Diversification), the more central its role within the networks. The interaction between these two variables reinforce and enhance this relationship between stability and centrality. Furthermore, we note that these relationships are mediated by environmental conditions, ...
+
+```{r fig3, fig.width = 11, fig.height = 7, fig.cap = "Posterior distributions of all parameters (except the intercept for a matter of scale) for the global analysis. The light shaded lines represent the 95% Credibility Interval (CI) and the dark shaded lines represent the 80% CI. The dots represent the median values (that are highly correlated with the mean and the mode, since the distributions are highly symmetrical). It is possible to see that more stable species (low Epsilon and/or high Net Diversification) are more central in the networks."}
+
+medians.per.tree <- aggregate(posterior.raw.plot$value, by = list(posterior.raw.plot$tree, posterior.raw.plot$variable), FUN = median)
+names(medians.per.tree) <- c("tree", "variable", "value")
+
+ggplot(data = posterior.raw.plot[-grep("Intercept", posterior.raw.plot$variable),]) +
+  geom_density(aes(x = value, colour = variable, fill = variable), alpha = 0.3) +
+  geom_vline(xintercept = 0, linetype = "dashed", colour = "darkgrey") +
+  geom_segment(data = posterior.quants[-grep("Intercept", posterior.quants$variable),], aes(y = -1, yend = -1, x = quant2.5, xend = quant97.5, colour = variable)) +
+  geom_segment(data = posterior.quants[-grep("Intercept", posterior.quants$variable),], aes(y = -1, yend = -1, x = quant10, xend = quant90, colour = variable), size = 2) +
+  geom_point(data = posterior.quants[-grep("Intercept", posterior.quants$variable),], aes(x = median, y = -1, colour = variable), size = 4, shape = 15) +
+  geom_point(data = medians.per.tree[-grep("Intercept", medians.per.tree$variable),], aes(x = value, y = 0, colour = variable), size = 2, shape = 19, alpha = 0.3) +
+  scale_colour_manual(values = colorRampPalette(brewer.pal(8, "Accent"))(9)) +
+  scale_fill_manual(values = colorRampPalette(brewer.pal(8, "Accent"))(9)) +
+  theme(legend.position = "none", panel.spacing.y=unit(2, "lines")) +
+  facet_grid(. ~ variable) +
+  labs(x = "Value", y = "Posterior Density") +
+  expand_limits(y = -1.5) +
+  coord_flip()
+
+```
+
+### Alternative visualizations (maybe for the supplementary material)
+
+```{r fig3alt1, fig.width = 11, fig.height = 10, fig.cap = "Flipped version of figure 3."}
+
+ggplot(data = posterior.raw.plot[-grep("Intercept", posterior.raw.plot$variable),]) +
+  geom_density(aes(x = value, colour = variable, fill = variable), alpha = 0.3) +
+  geom_vline(xintercept = 0, linetype = "dashed", colour = "darkgrey") +
+  geom_segment(data = posterior.quants[-grep("Intercept", posterior.quants$variable),], aes(y = -1, yend = -1, x = quant2.5, xend = quant97.5, colour = variable)) +
+  geom_segment(data = posterior.quants[-grep("Intercept", posterior.quants$variable),], aes(y = -1, yend = -1, x = quant10, xend = quant90, colour = variable), size = 2) +
+  geom_point(data = posterior.quants[-grep("Intercept", posterior.quants$variable),], aes(x = median, y = -1, colour = variable), size = 4, shape = 15) +
+  geom_point(data = medians.per.tree[-grep("Intercept", medians.per.tree$variable),], aes(x = value, y = 0, colour = variable), size = 2, shape = 19, alpha = 0.3) +
+  scale_colour_manual(values = colorRampPalette(brewer.pal(8, "Accent"))(9)) +
+  scale_fill_manual(values = colorRampPalette(brewer.pal(8, "Accent"))(9)) +
+  theme(legend.position = "none", panel.spacing.y=unit(2, "lines")) +
+  facet_grid(variable ~ .) +
+  labs(x = "Value", y = "Posterior Density") +
+  expand_limits(y = -1.5)
+
+```
+    
+```{r fig3alt2, fig.width = 11, fig.height = 7, fig.cap = "Alternative version of figure 3 that plots individually each posterior distribution of all trees used."}
+    
+ggplot(data = posterior.raw.plot[-grep("Intercept", posterior.raw.plot$variable),]) +
+  geom_density(aes(x = value, colour = variable, group = tree), alpha = 0.3) +
+  geom_vline(xintercept = 0, linetype = "dashed", colour = "darkgrey") +
+  geom_segment(data = posterior.quants[-grep("Intercept", posterior.quants$variable),], aes(y = -1, yend = -1, x = quant2.5, xend = quant97.5, colour = variable)) +
+  geom_segment(data = posterior.quants[-grep("Intercept", posterior.quants$variable),], aes(y = -1, yend = -1, x = quant10, xend = quant90, colour = variable), size = 2) +
+  geom_point(data = posterior.quants[-grep("Intercept", posterior.quants$variable),], aes(x = median, y = -1, colour = variable), size = 4, shape = 15) +
+  geom_point(data = medians.per.tree[-grep("Intercept", medians.per.tree$variable),], aes(x = value, y = 0, colour = variable), size = 2, shape = 19, alpha = 0.3) +
+  scale_colour_manual(values = colorRampPalette(brewer.pal(8, "Accent"))(9)) +
+  scale_fill_manual(values = colorRampPalette(brewer.pal(8, "Accent"))(9)) +
+  theme(legend.position = "none", panel.spacing.y=unit(2, "lines")) +
+  facet_grid(. ~ variable) +
+  labs(x = "Value", y = "Posterior Density") +
+  expand_limits(y = -1.5) +
+  coord_flip()
+
+```
+	
+## MCMCglmm - Latitude Analysis
+	
+```{r fig4, fig.width = 11, fig.height = 14, fig.cap = "Posterior distributions of all parameters (except the intercept for a matter of scale) for both Temperate and Tropical networks. The light shaded lines represent the 95% Credibility Interval (CI) and the dark shaded lines represent the 80% CI. The dots represent the median values (that are highly correlated with the mean and the mode, since the distributions are highly symmetrical)."}
+
+raw.noint.lat
+
+```
+
+## MCMCglmm - Dynamics Analysis
+
+```{r fig5, fig.width = 11, fig.height = 14, fig.cap = "Posterior distributions of all parameters (except the intercept for a matter of scale) for networks present in Contracting or Expanding biomes. The light shaded lines represent the 95% Credibility Interval (CI) and the dark shaded lines represent the 80% CI. The dots represent the median values (that are highly correlated with the mean and the mode, since the distributions are highly symmetrical)."}
+
+raw.noint.dyn
+
+```
+

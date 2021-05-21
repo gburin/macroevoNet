@@ -1,0 +1,154 @@
+library("MCMCglmm")
+library("ape")
+library("tidyverse")
+library("reshape2")
+library("cowplot")
+library("RColorBrewer")
+
+source("./R/data_preparation_mcmcglmm.R")
+
+### Global + PCA
+
+load("./output/mcmcglmm_dynamics_pca_zscore_1.RData")
+load("./output/mcmcglmm_dynamics_pca_zscore_2.RData")
+
+fullmcmc.results.dynamics.pca.z <- c(fullmcmc.results.dynamics.pca.z1, fullmcmc.results.dynamics.pca.z2)
+
+names(fullmcmc.results.dynamics.pca.z) <- paste0("tree", 1:112)
+
+posterior.raw.table <- bind_rows(lapply(fullmcmc.results.dynamics.pca.z, function(x){res <- as.data.frame(x$Sol); names(res) = c("Intercept:Contraction",
+                                                                                                                               "Epsilon:Contraction",
+                                                                                                                               "NetDiversification:Contraction",
+                                                                                                                               "PC1:Contraction",
+                                                                                                                               "PC2:Contraction",
+                                                                                                                               "Intercept:Expansion",
+                                                                                                                               "Epsilon:NetDiversification:Contraction",
+                                                                                                                               "Epsilon:PC1:Contraction",
+                                                                                                                               "Epsilon:PC2:Contraction",
+                                                                                                                               "Epsilon:Expansion",
+                                                                                                                               "NetDiversification:PC1:Contraction",
+                                                                                                                               "NetDiversification:PC2:Contraction",
+                                                                                                                               "NetDiversification:Expansion",
+                                                                                                                               "PC1:Expansion",
+                                                                                                                               "PC2:Expansion",
+                                                                                                                               "Epsilon:PC1:Expansion",
+                                                                                                                               "Epsilon:PC2:Expansion",
+                                                                                                                               "NetDiversification:PC1:Expansion",
+                                                                                                                               "NetDiversification:PC2:Expansion",
+                                                                                                                               "Epsilon:NetDiversification:Expansion")
+                                                                                                                               return(res)}))
+
+posterior.raw.table$tree <- rep(gsub("epsilon.", "", names(fulldata.net.bin)[26:137]), each = 1000)
+
+posterior.raw.plot <- melt(posterior.raw.table)
+posterior.raw.plot$dynamics <- sapply(as.character(posterior.raw.plot$variable), function(x){strsplit(x, split = ":", fixed = TRUE)[[1]][length(strsplit(x, split = ":", fixed = TRUE)[[1]])]})
+
+posterior.quants <- data.frame(
+    variable = unique(posterior.raw.plot$variable),
+    aggregate(posterior.raw.plot$value, by = list(posterior.raw.plot$variable), FUN = function(x){quantile(x, c(0.025, 0.1, 0.5, 0.9, 0.975))})$x
+)
+names(posterior.quants) <- c("variable", "quant2.5", "quant10", "median", "quant90", "quant97.5")
+posterior.quants$dynamics <- sapply(as.character(posterior.quants$variable), function(x){strsplit(x, split = ":", fixed = TRUE)[[1]][length(strsplit(x, split = ":", fixed = TRUE)[[1]])]})
+
+medians.per.tree <- aggregate(posterior.raw.plot$value, by = list(posterior.raw.plot$tree, posterior.raw.plot$variable), FUN = median)
+names(medians.per.tree) <- c("tree", "variable", "value")
+
+fulldata.net.bin$epsilon.z <- unlist(aggregate(fulldata.net.bin$epsilon.eric0102, by = list(fulldata.net.bin$id), FUN = scale)$x)
+fulldata.net.bin$netdiv.z <- unlist(aggregate(fulldata.net.bin$netdiv.eric0102, by = list(fulldata.net.bin$id), FUN = scale)$x)
+
+epsilon.main <-
+  ggplot(data = fulldata.net.bin) +
+  geom_point(aes(x = epsilon.z, y = pca, group = dynamics), alpha = 0.3) +
+  geom_abline(intercept = posterior.quants[1, "median"], slope = posterior.quants[2, "median"], colour = "red", size = 2) +
+  labs(x = "Extinction Fraction (Standardized)", y = "PCA centrality") +
+    ylim(-3, 8) +
+    facet_wrap(dynamics ~ .) +
+  theme_cowplot()
+
+netdiv.main <-
+  ggplot(data = fulldata.net.bin) +
+  geom_point(aes(x = netdiv.z, y = pca), alpha = 0.3) +
+  geom_abline(intercept = posterior.quants[1, "median"], slope = posterior.quants[3, "median"], colour = "blue", size = 2) +
+  labs(x = "Net Diversification (Standardized)", y = "PCA centrality") +
+  ylim(-3, 8) +
+  theme_cowplot()
+
+scatter.main <-
+    plot_grid(epsilon.main,
+              netdiv.main,
+              ncol = 2,
+              align = 'v',
+              rel_widths = c(0.3, 0.3)
+              )
+
+post.dens <-
+    ggplot(data = posterior.raw.plot[-grep("Intercept", posterior.raw.plot$variable),]) +
+    #geom_violin(aes(x = factor(variable, levels = rev(c("Epsilon", "NetDiversification", "Epsilon:NetDiversification", "PC1", "PC2", "Epsilon:PC1", "Epsilon:PC2", "NetDiversification:PC1", "NetDiversification:PC2"))), y = value, colour = variable, fill = variable), size = 1, alpha = 0.15) +
+    geom_violin(aes(x = variable, y = value, colour = dynamics, fill = dynamics), size = 1, alpha = 0.15) +
+    geom_hline(yintercept = 0, linetype = "dashed", colour = "darkgrey") +
+    #geom_point(data = medians.per.tree[medians.per.tree$variable != "Intercept",], aes(x = variable, y = value, colour = variable), size = 1.5, alpha = 0.5, shape = 19) +
+    stat_summary(aes(x = variable, y = value, colour = dynamics), fun = median, geom = "point", shape = 95, size = 30) +
+    #scale_colour_manual(values = colorRampPalette(brewer.pal(8, "Accent"))(9)) +
+    #scale_fill_manual(values = colorRampPalette(brewer.pal(8, "Accent"))(9)) +
+                                        #coord_flip() +
+    scale_x_discrete(labels = c("Epsilon", "NetDiversification", "PC1", "PC2", "Epsilon:NetDiversification", "Epsilon:PC1", "Epsilon:PC2", "NetDiversification:PC1", "NetDiversification:PC2")) +
+    labs(x = element_blank(), y = "Slope") +
+    #ylim(-1, 1) +
+    facet_wrap(dynamics ~ ., scales = "free_x", drop = TRUE, ncol = 1) +
+    #xlim(0.1, 1.5) +
+    theme_cowplot() +
+    theme(legend.position = "none", axis.text.x = element_text(angle = 45, hjust = 1))
+
+main.fig2 <-
+    plot_grid(
+        scatter.main,
+        post.dens,
+        nrow = 2,
+        align = 'hv',
+        labels = c("A", "B"),
+        rel_heights = c(0.4, 0.6)
+    )
+
+ggsave("./output/fig2_raw.pdf", plot = main.fig2, width = 11, height = 11)
+
+
+
+
+
+### Calculating marginal R2 for fixed effects based on https://www.researchgate.net/post/How_can_I_calculate_R2_for_an_Bayesian_MCMC_multilevel_model
+
+library("lme4")
+
+# Extraction of fitted value for the alternative model
+# fixef() extracts coefficents for fixed effects
+# MCMCglmm (it is probably better to get a posterior distribuiton of R2 rather than getting each varaince component - we do this below as an alternative)
+# Calculation of the variance in fitted values
+
+mVarF <- list()
+for(j in 1:length(fullmcmc.results.global.pca.z)){
+    mVarF[[j]] <- var(as.vector(apply(fullmcmc.results.global.pca.z[[j]]$Sol, 2, mean) %*% t(fullmcmc.results.global.pca.z[[j]]$X)))
+}
+
+# R2GLMM(m) - marginal R2GLMM
+
+unlist(lapply(1:112, function(x){mVarF[[x]]/(mVarF[[x]] + sum(apply(fullmcmc.results.global.pca.z[[x]]$VCV, 2, mean)))}))
+
+# MCMCglmm - marginal
+# mVarF/(mVarF + sum(apply(fullmcmc.results.global.pca.z[[1]]$VCV, 2, mean)))
+
+# alternative with crebile intervals
+vmVarF <- as.list(rep(NA, length(fullmcmc.results.global.pca.z)))
+
+for(j in 1:length(fullmcmc.results.global.pca.z)){
+    vmVarF[[j]] <- numeric(1000)
+    for(i in 1:1000){
+        Var <- var(as.vector(fullmcmc.results.global.pca.z[[j]]$Sol[i, ] %*% t(fullmcmc.results.global.pca.z[[j]]$X)))
+        vmVarF[[j]][i] <- Var
+    }
+}
+
+R2m <- unlist(lapply(1:112, function(x){vmVarF[[x]]/(vmVarF[[x]] + fullmcmc.results.global.pca.z[[x]]$VCV[, 1] + fullmcmc.results.global.pca.z[[x]]$VCV[, 2] + fullmcmc.results.global.pca.z[[x]]$VCV[, 3])}))
+
+mean(R2m)
+
+quantile(R2m, probs = c(0.025, 0.975))

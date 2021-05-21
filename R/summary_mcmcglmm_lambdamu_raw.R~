@@ -1,0 +1,127 @@
+library("MCMCglmm")
+library("ape")
+library("tidyverse")
+library("reshape2")
+library("cowplot")
+library("RColorBrewer")
+
+### Global + PCA
+
+load("../output/mcmcglmm_lambdamu_pca_raw.RData")
+
+names(fullmcmc.results.lambdamu.pca) <- paste0("tree", 1:112)
+
+posterior.raw.table.lambdamu <-
+    bind_rows(lapply(fullmcmc.results.lambdamu.pca.z1,
+                     function(x){res <- as.data.frame(x$Sol); names(res) = c("Intercept", "NetDiversification\nSpeciation", "Epsilon\nExtinction", "PC1", "PC2", "NetDiversification:Epsilon\nSpeciation:Extinction", "NetDiversification:PC1\nSpeciation:PC1", "NetDiversification:PC2\nSpeciation:PC2", "Epsilon:PC1\nExtinction:PC1", "Epsilon:PC2\nExtinction:PC2")
+                         return(res)}))
+
+posterior.raw.table.lambdamu$tree <- rep(gsub("epsilon.", "", names(fulldata.net.bin)[26:137]), each = 1000)
+
+posterior.raw.plot.lambdamu <- melt(posterior.raw.table.lambdamu)
+levels(posterior.raw.plot.lambdamu$variable) <- levels(posterior.raw.plot.lambdamu$variable)[c(1:6, 7:10)]
+
+posterior.quants.lambdamu <- data.frame(
+    variable = unique(posterior.raw.plot.lambdamu$variable),
+    aggregate(posterior.raw.plot.lambdamu$value, by = list(posterior.raw.plot.lambdamu$variable), FUN = function(x){quantile(x, c(0.025, 0.1, 0.5, 0.9, 0.975))})$x
+)
+names(posterior.quants.lambdamu) <- c("variable", "quant2.5", "quant10", "median", "quant90", "quant97.5")
+
+medians.per.tree.lambdamu <- aggregate(posterior.raw.plot.lambdamu$value, by = list(posterior.raw.plot.lambdamu$tree, posterior.raw.plot.lambdamu$variable), FUN = median)
+names(medians.per.tree.lambdamu) <- c("tree", "variable", "value")
+
+fulldata.net.bin.lambdamu$lambda.z <- unlist(aggregate(fulldata.net.bin.lambdamu$lambda.eric0102, by = list(fulldata.net.bin.lambdamu$id), FUN = scale)$x)
+fulldata.net.bin.lambdamu$mu.z <- unlist(aggregate(fulldata.net.bin.lambdamu$mu.eric0102, by = list(fulldata.net.bin.lambdamu$id), FUN = scale)$x)
+
+## lambda.main <-
+##   ggplot(data = fulldata.net.bin.lambdamu) +
+##   geom_point(aes(x = lambda.z, y = pca), alpha = 0.3) +
+##   geom_abline(intercept = posterior.quants[1, "median"], slope = posterior.quants[2, "median"], colour = RColorBrewer::brewer.pal(3, "Dark2")[1], size = 2) +
+##   labs(x = "Speciation (Standardized)", y = "PCA centrality") +
+##   ylim(-3, 8) +
+##   theme_cowplot()
+
+## mu.main <-
+##   ggplot(data = fulldata.net.bin.lambdamu) +
+##   geom_point(aes(x = mu.z, y = pca), alpha = 0.3) +
+##   geom_abline(intercept = posterior.quants[1, "median"], slope = posterior.quants[3, "median"], colour = RColorBrewer::brewer.pal(3, "Dark2")[2], size = 2) +
+##   labs(x = "Extinction (Standardized)", y = "PCA centrality") +
+##   ylim(-3, 8) +
+##   theme_cowplot()
+
+## scatter.main <-
+##     plot_grid(lambda.main,
+##               mu.main,
+##               ncol = 2,
+##               align = 'v',
+##               rel_widths = c(0.3, 0.3)
+##               )
+
+## post.dens <-
+##     ggplot(data = posterior.raw.plot.lambdamu[posterior.raw.plot.lambdamu$variable != "Intercept",]) +
+##     geom_violin(aes(x = factor(variable, levels = c("Lambda", "Mu", "Lambda:Mu", "PC1", "PC2", "Lambda:PC1", "Lambda:PC2", "Mu:PC1", "Mu:PC2")), y = value, colour = variable, fill = variable), size = 1, alpha = 0.15) +
+##     geom_hline(yintercept = 0, linetype = "dashed", colour = "darkgrey") +
+##     geom_point(data = medians.per.tree[medians.per.tree$variable != "Intercept",], aes(x = variable, y = value, colour = variable), size = 1.5, alpha = 0.5, shape = 19) +
+##     stat_summary(aes(x = variable, y = value, colour = variable), fun = median, geom = "point", shape = 95, size = 30) +
+##     scale_colour_manual(values = colorRampPalette(brewer.pal(8, "Spectral"))(9)) +
+##     scale_fill_manual(values = colorRampPalette(brewer.pal(8, "Spectral"))(9)) +
+##     #coord_flip() +
+##     labs(x = element_blank(), y = "Slope") +
+##     ylim(-1, 1) +
+##     #xlim(0.1, 1.5) +
+##     theme_cowplot() +
+##     theme(legend.position = "none")
+
+## main.fig2 <-
+##     plot_grid(
+##         scatter.main,
+##         post.dens,
+##         nrow = 2,
+##         align = 'hv',
+##         labels = c("A", "B"),
+##         rel_heights = c(0.4, 0.6)
+##     )
+
+## ggsave("../output/fig2_raw_lambdamu.pdf", plot = main.fig2, width = 11, height = 11)
+
+
+
+
+
+## ### Calculating marginal R2 for fixed effects based on https://www.researchgate.net/post/How_can_I_calculate_R2_for_an_Bayesian_MCMC_multilevel_model
+
+## library("lme4")
+
+## # Extraction of fitted value for the alternative model
+## # fixef() extracts coefficents for fixed effects
+## # MCMCglmm (it is probably better to get a posterior distribuiton of R2 rather than getting each varaince component - we do this below as an alternative)
+## # Calculation of the variance in fitted values
+
+## mVarF <- list()
+## for(j in 1:length(fullmcmc.results.lambdamu.pca.z1)){
+##     mVarF[[j]] <- var(as.vector(apply(fullmcmc.results.lambdamu.pca.z1[[j]]$Sol, 2, mean) %*% t(fullmcmc.results.lambdamu.pca.z1[[j]]$X)))
+## }
+
+## # R2GLMM(m) - marginal R2GLMM
+
+## unlist(lapply(1:112, function(x){mVarF[[x]]/(mVarF[[x]] + sum(apply(fullmcmc.results.lambdamu.pca.z1[[x]]$VCV, 2, mean)))}))
+
+## # MCMCglmm - marginal
+## # mVarF/(mVarF + sum(apply(fullmcmc.results.global.pca.z[[1]]$VCV, 2, mean)))
+
+## # alternative with crebile intervals
+## vmVarF <- as.list(rep(NA, length(fullmcmc.results.lambdamu.pca.z1)))
+
+## for(j in 1:length(fullmcmc.results.lambdamu.pca.z1)){
+##     vmVarF[[j]] <- numeric(1000)
+##     for(i in 1:1000){
+##         Var <- var(as.vector(fullmcmc.results.lambdamu.pca.z1[[j]]$Sol[i, ] %*% t(fullmcmc.results.lambdamu.pca.z1[[j]]$X)))
+##         vmVarF[[j]][i] <- Var
+##     }
+## }
+
+## R2m <- unlist(lapply(1:112, function(x){vmVarF[[x]]/(vmVarF[[x]] + fullmcmc.results.lambdamu.pca.z1[[x]]$VCV[, 1] + fullmcmc.results.lambdamu.pca.z1[[x]]$VCV[, 2] + fullmcmc.results.lambdamu.pca.z1[[x]]$VCV[, 3])}))
+
+## mean(R2m)
+
+## quantile(R2m, probs = c(0.025, 0.975))

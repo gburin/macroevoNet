@@ -1,0 +1,118 @@
+---
+title: Macroevolutionary imprints on the assembly of seed dispersal networks
+author: Gustavo Burin, Paulo R. Guimaraes Jr., Tiago B. Quental
+output:
+  pdf_document:
+    toc: false
+    toc_depth: 3
+    number_sections: false
+    latex_engine: lualatex
+    fig_caption: true
+indent: true
+mainfont: Arial
+keep_tex: true
+fontsize: 11pt
+header-includes:
+  - \usepackage{float}
+  - \floatplacement{figure}{H}
+  - \floatplacement{table}{H}
+  - \floatplacement{verbatim}{H}
+  - \usepackage{setspace}
+  - \onehalfspacing
+  - \newcommand{\beginsupplement}{\setcounter{table}{0}  \renewcommand{\thetable}{S\arabic{table}} \setcounter{figure}{0} \renewcommand{\thefigure}{S\arabic{figure}}}
+  - \usepackage{indentfirst}
+  - \usepackage{parskip}
+  - \setlength{\parskip}{1em}
+  - \setlength{\parindent}{4em}
+  - \inputencoding{latin2}
+  - \usepackage[backend=biber]{biblatex}
+  - \bibliography{refs.bib}
+  - \inputencoding{utf8}
+  - \usepackage{fontspec}
+bibliography: refs.bib
+csl: science.csl
+---
+
+# Abstract
+
+Assessing the deep time mechanisms affecting the assembly of ecological networks are key to understand biodiversity changes in broader time scales. Here, we show the species that contribute most to the network structure of plant-frugivorous interactions belongs to lineages that show higher stability through macroevolutionary (geologic) time. This association is more pronounced in warmer, wetter, less seasonal environments, which possess a more diverse assemblage of species that can be sorted during network assembly. We infer that the macroevolutionary sorting mechanism at the local scale shapes seed dispersal networks, with more central frugivorous species belonging to lineages that are the most stable given the regionally available pool of species. Our results suggest an interplay between ecological roles and diversification regimes in shaping the organization and fate of interacting plants and seed dispersing birds at different scales.
+
+# Main Text: 
+
+Seed dispersal by animals is a fundamental ecosystem service (\cite{fleming2013}). This mutualism between angiosperms and, mainly, vertebrates started about 80 Mya (\cite{eriksson2016}), and currently between 70-90% of woody species rely on vertebrate species to disperse their seeds (\cite{jordano2000}). Accordingly, many vertebrate groups have fruits as at least part of their diet (56% of bird families, and up to 95% of species for some mammal groups, in addition to squamates, chelonians, frogs, and fishes – (\cite{donatti2011, snow1981})). The radiations of important groups of seed-dispersers, such as birds and mammals, are hypothesized to be linked to the angiosperm rise and dominance during the Cenozoic (\cite{eriksson2016}), although the causal links are elusive. In particular, some bird groups are consistently recognized as specialized frugivores (\cite{fleming2013}, \cite{snow1981, fleming1987, kissling2009}). 
+
+In the past decades, most studies on seed-dispersal networks have focused on understanding patterns and processes at ecological timescales (e.g. \cite{bascompte2007, galetti2013}), with few studies looking at broader temporal scales (e.g. \cite{harmon2019} and references therein, \cite{eriksson2016, burin2016, gomez2010, gomez2012, weber2014}). We are now beginning to understand how diversification dynamics may affect the assembly process, and consequently, the structure of interaction networks (e.g. \cite{nuismer2015, roopnarine2018}). 
+
+Although the whole interaction networks might be plastic both in time and space (\cite{ponisio2017}), some evidence suggests that the core of seed dispersal network is somewhat robust to short-term (yearly) fluctuations of fruit availability and bird species presence (\cite{plein2013}). Moreover, theory suggests that predictable and stable species in a particular place should interact with more partners (\cite{olesen2008, yang2013}), supporting the idea that at least the core of the network might show some temporal stability. Lastly, the identity of interacting partners typically shows phylogenetic signal, meaning that related species tend to share similar interactions (\cite{gomez2012, rezende2007}). We thus expect that macroevolutionary predictable lineages of birds from regional species pools are more likely to contribute with species to the core of ecological networks, providing an explicit macroevolutionary mechanism for network assemblage (see \ref{fig:rationale} for schematic version of general approach and data used). Using diversification rates estimated from molecular phylogenies, a dataset composed of 29 seed dispersal networks, and a hierarchical Bayesian approach we investigated the potential association between the bird species’ ecological roles and their macroevolutionary stability. 
+
+\begin{figure}[ht]
+	\centering
+	\includegraphics[width=1\textwidth]{../output/fig1_2020.png}
+	\caption{\textbf{Conceptual framework and data used} - Panel A (top left): Exemplar pruned phylogeny with indicated bird orders, along with the speciation rates (orange dashes), extinction rates (pink dashes), net diversification rates (green dashes), extinction fraction (purple dashes), and the PCA centrality values for each of the species of all species used in the analyses. X-axis on panel C acts as legend for the rate values on panel A. Some species were present in more than one ecological network, and this is information is displayed by points or bars of different colors in the PCA centrality graph. Panel B (top right): Cartoon example of two networks, showing the suggested patterns of network assembly with respect to macroevolutionary rates shown in Panel A, and the potential replacement (indicated by the dashed line) in case a given species goes extinct. Panel C (bottom left): Expected correlations between PCA centrality and all four rates considered in this study. Panel D (bottom right): illustrative combination of speciation and extinction rates showing different degrees of species- and clade-level stability.}
+	\label{fig:rationale}
+\end{figure}
+
+Here we define macroevolutionary stability at two different levels. At the species level, we define as stable those species that typically last longer (lower extinction rates imply longer longevities). At higher phylogenetic levels (e.g. monophyletic lineage with multiple species), we define stable lineages as those that either have low extinction fraction (i.e. relative low extinction when compared to speciation), and/or higher net diversification (i.e. lineages that can accumulate species at a faster pace), which would allow for a more efficient replacement of a given extinct species with a closely related one. We estimated the bird species’ ecological role by using tools derived from network science. We then incorporated phylogenetic and ecological uncertainties, along with environmental factors, in order to address how the interplay between biotic and abiotic factors drives the assembly of local networks according to the macroevolutionary dynamics. We jointly tested whether the sorting of macroevolutionary regimes takes place at the regional or at a global scale. Due to the lack of comprehensive species-level phylogenies for plants, we only used data for bird side of those networks. 
+
+We found that central bird species tend to belong to macroevolutionary stable lineages. The standardized speciation and extinction rates show respectively positive and negative correlations with species’ ecological role (\ref{fig:posteriors} panel A). The negative correlation with extinction rates highlights that the sorting process takes place at the species level (since longevity is an inherent property of a species), with longer lasting species occupying more central roles within the networks. We also found that extinction fraction is negatively correlated with species’ ecological role while net diversification rates are positively correlated (\ref{fig:posteriors} panel B). In both cases the posterior distributions are clearly off centered with respect to a slope value of zero. These correlations suggest that species that occupy central positions in the networks tend to belong to lineages that are either less volatile (\textit{sensu} \cite{gilinski1994}) and/or that can generate a large number of taxa in a short time span. Hence central species are not only more likely to persist in time (negative correlation with extinction rate), but also to belong to clades that are more likely to provide a replacement species in case that one dies out (correlations with epsilon and diversification rate). 
+
+We also found a positive relationship between speciation rate and centrality measures. From the point of view of the individual species this seems irrelevant in predicting stability, but we interpret this result as evidence for a clade-level mechanism of stability given that high speciation rates can favor high net diversification rates and/or low extinction fraction values. All these results hold after accounting for multiple sources of uncertainty (figs. S2 and S3). Median standardized effects for speciation, extinction, extinction fraction and net diversification were 0.275, -0.218, -0.140 and 0.191, respectively, indicating the two higher-level components of macroevolutionary stability contribute with similar intensity to the structuring of the networks. Sensitivity analysis based on the medians of the posterior distributions for most parameters for each individual tree (\ref{fig:posteriors} panels C and D) suggests that this signal holds irrespective of phylogenetic uncertainty. 
+
+\begin{figure}[ht]
+	\centering
+	\includegraphics[width=1\textwidth]{../output/fig2_2020.png}
+	\caption{\textbf{Association between network centrality and macroevolutionary stability} - (A) - exemplar association between PCA centrality values and speciation and extinction rates estimated from one phylogenetic tree. The blue and red lines were plotted using the median intercept and slope values from the combined posterior distribution of each parameter. (B) - exemplar association between PCA centrality values and extinction fraction and net diversification rates estimated from one phylogenetic tree. The blue and red lines were plotted using the median intercept and slope values from the combined posterior distribution of each parameter. (C) - Posterior distributions of all parameters (except the intercept for a matter of scale) for the Bayesian generalized linear mixed model analysis between using speciation ($\lambda$) and extinction ($\mu$) rates as predictors. (D) - Posterior distributions of all parameters (except the intercept for a matter of scale) for the Bayesian generalized linear mixed model analysis between using net diversification (r) and extinction fraction ($\epsilon$) rates as predictors. Posterior distribution of slopes for Speciation, Extinction, Net Diversification and Extinction fraction are clearly off-centered from the slope value of zero in the expected direction (positive for speciation and net diversification, and negative for extinction and extinction fraction), indicating that species belonging to macroevolutionary more stable lineages are more central in the networks. In panels (C) and (D) the density of the color represents the posterior density of each parameter; the point-and-range lines on the left of each variable represents the median (point), 66% highest posterior density interval (HPD - thick line) and 95% HPD (thin line); the dots on the right of each variable represent the median of the posterior distribution of each individual tree used in the analyses.}
+	\label{fig:posteriors}
+\end{figure}
+
+Our results provide evidence that this macroevolutionary sorting mechanism is predominantly a regional-scale phenomenon, since we only observed evidence for sorting when analyzing the rates standardized within networks (z-scored rates per network - \ref{fig:posteriors}), but not for the raw absolute rates (Fig S4 and S5). This suggests that the macro-evolutionary sorting mechanism acts on the regional pool of species through their relative rank of stability, rather than on absolute values of speciation, extinction, extinction fraction or net diversification rates. That said, some clades are known to be important seed-dispersers across multiple localities (some families of Passeriformes (e.g. Tyrannidae and Fringillidae) , Galliformes (e.g. Phasianidae), and Piciformes (e.g. Ramphastidae), \cite{snow1981, fleming1987, kissling2009}), and different networks along a geographical range are structured with similar functional roles within its structure (\cite{dehling2020}). 
+
+To evaluate if species within the same lineage play a similar role in different networks, we calculated the average centrality value for each different lineage (either family or genus) for all networks. The association between the mean centrality value of each lineage in different networks decays as a function of the geographical distances between those networks (\ref{fig:geograph}). These results suggest that geographically close networks tend to have similar lineages playing similar ecological roles, but those roles are taken by different lineages in different parts of the planet. This result also reinforces that the assembly process occurs in a regional scale, in accordance to the fact that the relationship between centrality and macroevolutionary stability exists for the standardized rates but not for the absolute rates.
+
+\begin{figure}[ht]
+	\centering
+	\includegraphics[width=1\textwidth]{../output/fig3_2020.png}
+	\caption{\textbf{Association between mean centrality per family (panels A and B) or genus (panels C and D) and geographical distance} - Each point represents a pairwise correlation between ecological roles in two different networks, and the red lines represent a loess smoothing to show the general trend of the data. The grey areas represent the null models that were built by randomizing centrality values per species within networks (panels A and C), or by randomizing the identity of networks for each geographical distance (panels B and D). Regardless of the null model selected, the associations between mean centrality of families/genera is higher than expected by the null model for geographically close networks, and this similarity dissipates with distance, suggesting that there is no single group driving the association between macroevolutionary stability and ecological role.}
+	\label{fig:geograph}
+\end{figure}
+
+We also found that environmental conditions affect the relationship between ecological role in the seed dispersal network and macroevolutionary stability, with warmer, wetter, non-seasonal environments showing a stronger sorting, favoring the building of the network around macroevolutionary stable species and lineages (\ref{fig:posteriors}).  These environments harbor the highest frugivorous species richness (\cite{kissling2009}), and we hypothesize that such species rich environments allow for a finer sub-division of ecological roles on which this macroevolutionary sorting of stable species and lineages could more efficiently act. In fact, networks found on those tropical-forest-like environments are more centralized (i.e. a clearer difference in centrality between the more central and more peripheral species) than networks commonly found on colder, drier, and seasonal environments (\ref{fig:posteriors} panels C and D). 
+
+An analysis using a different dataset, in this case species dietary composition, suggests a tendency for many networks from warm/wet climates to show broader total amplitude in dietary niches (\ref{fig:niche} panel A), corroborating the finding that warm and humid environments possess a broader range of dietary niches (not only more species). Warmer, more humid and less seasonal climates allow for a more homogeneous occupation of the dietary space without increasing the dietary niche overlap between species, as indicated by the positive association between temperature/humidity and the average pairwise dietary niche distance (\ref{fig:nighe} panel A), and by the absence of association between climatic conditions and the shortest dietary niche distances between species (\ref{fig:niche} panel B). Thus, the higher species richness and the higher variation in dietary provide the raw material that allows macroevolutionary sorting of stable lineages to occur. In contrast, on colder, drier, and seasonal environments, the low species richness and the low variation in dietary niches lead to a small variation on centrality and a weaker effect of macroevolutionary sorting.
+
+\begin{figure}[ht]
+	\centering
+	\includegraphics[width=1\textwidth]{../output/fig4_2020.png}
+	\caption{\textbf{Different axes of specialization of bird species analyzed in the study} - A) Plot showing that the average pairwise distance of species along dietary PC1 increases towards warmer, wetter, less seasonal environments (climatic PC1, p-value = 0.001, R² = 0.4316). B) Scatterplot between mean nearest-neighbor distance and the climatic PC1, highlighting the much smaller variation in comparison to panel A. We used the same scale from panel A on the y-axis to highlight the much lower, non-significant association (p-value = 0.1196, R² = 0.0535). C) Association between PCA centrality and the phylogenetic diversity of plant families with which each bird species interacts, indicating that more central species interact with more diverse plant families (p-value < 2.2*10-16, R² = 0.7033). On all panels continuous lines indicate statistically significant associations while dotted lines a lack of significant association.}
+	\label{fig:niche}
+\end{figure}
+
+In summary, our results provide evidence for a macroevolutionary sorting mechanism (species selection in a broad sense - \cite{jablosnki2008}) on network assembly where central species tend to have longer longevities (the inverse of extinction rate) and to belong to evolutionary lineages that are more stable over deep time. Moreover, we found that those central species not only interact with a higher number of species, but also that those partner species belong to a wider range of plant families (\ref{fig:niche} panel C). Although here we focused on the role of stability influencing the sorting of ecological roles during network assembly, it is worth noting that there could be a feedback effect where ecological roles might affect macroevolutionary stability. This, however, remains to be properly addressed in future studies. In conclusion, our results suggest potential multi-level, bi-directional selective regimes between ecological roles and diversification regimes, which might shape the fate of groups of very distantly related lineages (birds and plants) linked through ecological interactions. 
+
+# References
+
+\printbibliography
+
+## Acknowledgments
+
+We thank Eduardo Santos, Marco Melo, Marcus Aguiar, Patrícia Morelatto, Marilia Gaiarsa, Daniel Caetano, and all the researchers in LabMeMe and Guimarães Lab for their insightful comments during several steps of this work. 
+
+## Funding
+
+All authors thank FAPESP (Fundação de Amparo à Pesquisa do Estado de São Paulo) for funding (GB: grants #2014/03621-9 and #2018/04821-2; PRG: grant #2018/14809-0, TBQ: grants #2012/04072-3 and #2018/05462-6)
+
+## Author contributions
+
+Gustavo Burin: Conceptualization, Methodology, Data Curation, Investigation, Writing - Original Draft & Review & Editing, Visualization; 
+
+Paulo R. Guimarães Jr.: Conceptualization, Methodology, Writing - Review & Editing; 
+
+Tiago B. Quental: Conceptualization, Methodology, Writing - Original Draft & Review & Editing, Supervision
+
+## Competing interests
+
+Authors declare no competing interests
+
+## Data and materials availability: 
+
+Bird phylogenies were obtained from birdtree.org (Jetz et al. 2012), and ecological networks were obtained from http://dx.doi.org/10.5061/dryad.2br2b (Pigot et al. 2016). All data and code used in this study is also available for download at https://doi.org/10.5281/zenodo.3560680. Codes are also available at https://www.github.com/gburin/macroevoNet.

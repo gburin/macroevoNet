@@ -1,0 +1,659 @@
+---
+title: Supplementary Material - Macroevolutionary imprints on the assembly of seed dispersal networks
+author: Gustavo Burin, Paulo R. Guimaraes Jr., Tiago B. Quental
+output:
+  pdf_document:
+    toc: false
+    toc_depth: 3
+    latex_engine: xelatex
+    number_sections: false
+    fig_caption: true
+    keep_tex: false
+  word_document:
+    toc: true
+indent: true
+mainfont: Arial
+keep_tex: false
+fontsize: 11pt
+header-includes:
+  - \usepackage{float}
+  - \floatplacement{figure}{H}
+  - \floatplacement{table}{H}
+  - \floatplacement{verbatim}{H}
+  - \usepackage{setspace}
+  - \onehalfspacing
+  - \newcommand{\beginsupplement}{\setcounter{table}{0}  \renewcommand{\thetable}{S\arabic{table}} \setcounter{figure}{0} \renewcommand{\thefigure}{S\arabic{figure}}}
+  - \usepackage{indentfirst}
+  - \usepackage{parskip}
+  - \setlength{\parskip}{1em}
+  - \setlength{\parindent}{4em}
+  - \usepackage{lscape}
+  - \newcommand{\blandscape}{\begin{landscape}}
+  - \newcommand{\elandscape}{\end{landscape}}
+---
+
+# Material and Methods
+
+To investigate the potential effect of diversification rates on the assembly of current ecological networks we first characterized each frugivore species with respect to its potential ecological role in the network, and then estimated speciation and extinction rates related to each bird lineage using a comprehensive molecular phylogeny containing approximately 67% of all bird species (see below). We then tested for an association between the network metric and the macroevolutionary rate (see figure 1 main text for a cartoon version of the general approach) using phylogenetic generalized linear mixed models (MCMCglmm - \textit{23}). Phylogenetic correction was used because the network metrics showed significant phylogenetic signal (mean value for Pagel’s lambda = 0.537, but note that for each tree the corresponding lambda value was used).
+
+## Diversification Rates
+
+To estimate speciation and extinction rates we used the most recent bird phylogeny, which comprises the 99.3% of the extant species (9993 species in the phylogeny from an estimated total of 10,064 species – (\textit{24}). To avoid any potential bias introduced by adding species without DNA sequences (using a pure-birth algorithm) on our estimates of speciation and extinction rates (\textit{25}), we used the trees that contain only species for which molecular data were available from the original phylogenetic paper (\textit{24}). This tree had 6670 species, but species not sampled were taken into account by the model. We analyzed the bird molecular phylogeny using a Bayesian framework (BAMM v. 2.5; \textit{26}) to estimate the rates of speciation and extinction while explicitly taking into account the sampling fraction of species. The incompleteness (about 1/3 of species without DNA data) was considered within BAMM by using the corresponding percentage of missing species within each clade of the maximum clade credibility tree obtained by \textit{24}.\textit{26} has developed an algorithm that finds sub-trees within a phylogeny, which share speciation and extinction rates through a Bayesian framework using reversible-jump Markov Chain Monte Carlo sampling. Each diversification shift configuration has an associated posterior probability, and each configuration can assign different diversification rates to a particular species or clade. Therefore the rates were estimated using the whole tree, and we then obtained the mean rates averaged by the marginal posterior probabilities of each distinct shift configuration for each species to be used in the following steps, thus accounting for the uncertainty related to the true rate regime configuration. This way, we also avoid any issue related to rate estimation for independently extracted subclades from a tree (Rabosky 2019).
+
+In addition to the traditional rates obtained from BAMM ($\lambda$ and $\mu$, speciation and extinction rates respectively), we calculated two of our rates of interest: the extinction fraction ($\epsilon = \mu/\lambda$) and net diversification rate ($r = \lambda - \mu$) for all species in the networks. These two rates represent two different metrics used to quantify the stability/predictability of a given lineage, instead of characterizing the macroevolutionary dynamics of each single species like the probability of speciation and extinction. A higher value of extinction fraction suggests a more volatile dynamics within a given lineage and hence a higher chance of the entire lineage going extinct. A lower net diversification rate suggests that a lineage accumulates species as a smaller pace, and therefore has a higher chance of going extinct than lineages with higher net diversification rate. To our purposes, we build two sets of models that aim to assess the relationship between ecological role and macroevolutionary stability at different levels: one that uses speciation and extinction rates (for a species-level sorting process) and one that uses extinction fraction and net diversification (for a clade-level sorting process). We assume that the two rates of each set of model (each of them plus their interaction) affects the likelihood that a given lineage might be evolutionary stable/reliable at long temporal scales. In all analyses, we used rates estimated at the present, as it coincides with the timeframe of the data for the networks, and also because these rates were shown to be both well estimated with BAMM (\textit{27}), and not so affected by parameter identifiability issues raised by \textit{28}.
+
+To evaluate the geographical scale in which the sorting process takes place, we replicated the two sets of tests using both the raw rates and rates standardized by network. To standardize the rates we re-scaled the rates by calculating the difference between the rate of each species and the mean rate of the network, and then dividing this difference by the standard deviation of the rates in the network. With this transformation, we test if the sorting acts based on the global (absolute) rate of a species or if it acts on the rate relative to other species available in the regional species scale.
+
+## Ecological Networks
+
+To evaluate the ecological role of different species we used data from 34 different frugivory networks compiled by previous authors (\textit{29}). Those networks comprise both temperate and tropical areas and a total of 546 unique bird species (838 total unique interactions). From the original dataset, we discarded 5 networks due to biases in species composition (networks that focused on specific bird or plant groups, and therefore representing a small subset of the interacting assemblage), resulting in a final dataset of 468 species (700 unique interactions). Although some networks (23) had information on the strength of interactions, we decided to binarize all networks for two reasons. First, it allows us to work with a larger dataset. Second, it is known that interaction strengths vary across time (e.g. Ponisio et al. 2017), rendering quantitative estimates not necessarily meaningful as a long-term description. We also removed pairs of species that only interacted with each other, and were, by definition, disconnected from the rest of the network. Those represent only 14 species from only 6 different networks from a total of 468 species from 29 networks. This was done because some of the network metrics are not defined for networks that are not fully connected.
+
+To characterize each species’ ecological role within the compiled dataset we investigated different node (species) properties of the networks by calculating three different centrality metrics using the original bipartite networks: degree (number of interactions), closeness centrality (the reciprocal of the sum of shortest distances, in links, connecting the focal node to all other nodes in the network) and Katz centrality (a measure of the distance, in terms of all possible pathways, between the focal node and all other nodes of the network, using $\alpha = 0.05$). Such metrics provide us with information about the importance of each species network structure when considering only the direct interactions (degree), the shortest pathways (closeness) or all pathways (Katz). To be able to combine the interaction patterns estimated for different networks (that have different properties, such as number of species and connectance) into a single analysis, we first standardized the three metrics by calculating their z-scores for each network separately. After compiling each of the three standardized centrality metrics for all species in all networks in a single dataset, we performed a Principal Component Analysis (PCA) in order to obtain a single score that comprised different aspects of the network position (as a proxy for the interaction patterns - i.e. ecological role). We used only the first Principal Component since it explained 93.3% of the variance in centrality values.
+
+## Sources of uncertainties
+
+We incorporated in our analyses two additional distinct sources of uncertainty (besides BAMM's rate configuration uncertainty previously mentioned). The first one is related to the true evolutionary history of birds. To incorporate the phylogenetic uncertainty, we used 112 different topologies from the bird phylogeny from \textit{24} (56 of each backbone) to both estimate the rates of diversification and to take into account the phylogenetic structure of the residuals in the linear model. This number of trees is more than double the average recommended number of trees to encompass enough phylogenetic uncertainty in comparative analyses (\textit{30}). The other source of uncertainty came from the networks. From all the species in the final dataset (N = 468 species), 139 are part of more than one network (up to 6 networks), making it impossible to attribute a single centrality value to those species. We thus incorporated this variation as a source of uncertainty in the regression analysis by using species identity as a random factor as described in the modeling section below.
+
+## Co-Factors
+
+Because the nature and relevance of ecological interactions might be different at different parts of the planet (\textit{31}) we ran a global analysis (with all networks combined) using climatic variables as co-factors. Those were: 1 - annual mean temperature; 2 - temperature seasonality; 3 - annual precipitation; 4 - precipitation seasonality. To summarize environmental conditions and avoid over-parameterization of the models, we ran a PCA with the four climatic variables, and used the first and second PCs that in combination explain 81.92% of total variance. We note that those two PCs aligned well with the raw temperature and precipitation variables (Annual Mean Temperature, Temperature Seasonality, and Annual Precipitation have scores of 0.619, -0.592, and 0.492 on PC 1, respectively. Annual Precipitation and Precipitation Seasonality have scores of 0.331 and -0.942 on PC 2, respectively - figure S5). The climatic data were obtained from the WorldClim database version 2.0 (\textit{32}).
+
+## Modelling
+
+We tested the association between ecological roles and macroevolutionary dynamics using a Bayesian generalized linear mixed model (MCMCglmm), implemented in the R package MCMCglmm (\textit{23}). This framework allows us to naturally incorporate both sources of uncertainty. By using species identity and the phylogenetic structure as random factors, we can account for intraspecific variation in the ecological roles on the estimation of the regression parameters while simultaneously controlling for the phylogenetic structure. Moreover, by combining the posterior distributions of parameter values using rates from different trees (topologies), we also can account for phylogenetic uncertainty. We assessed the effect size of each variable used in the model by analyzing the asymmetries in both the combined posterior distributions in relation to zero (no association), and in the medians of individual posterior distributions for each tree (\textit{33}, \textit{34}). By doing this we embrace sources of uncertainty incorporated in our analysis (ecological and phylogenetic) while looking at the magnitude of the effect (\textit{33}). All MCMC chains were run for 5000000 iterations, with half of the total length discarded as burn-in, and sampling every 2500 iterations. We used inversed Wishart distributions as priors for both the fixed and the random effects. The models we tested were the following:
+
+$PCA \ Centrality \sim \lambda + \mu + \lambda * \mu + ClimPC1 + ClimPC2 + \lambda:ClimPC1 + \lambda:ClimPC2 + \mu:ClimPC1 + \mu:ClimPC2$
+
+$PCA \ Centrality \sim r + \epsilon + r * \epsilon + ClimPC1 + ClimPC2 + r:ClimPC1 + r:ClimPC2 + \epsilon:ClimPC1 + \epsilon:ClimPC2$
+
+We fitted the two models using both the raw rates and the standardized (z-scored) rates. Additionally, we also fitted the same two models for the standardized rates, but excluding species in the top 5% standardized rates to check for possible biases on the final results.
+
+## Geographical patterns of centrality per family/genus
+
+To check if the species that play central/peripheral roles in different networks show a spatial structure with respect to their taxonomic identity (e.g. belong to the same family/genus), we calculated the association between the average centrality per family or genus for each pair of networks using Spearman’s correlations, $\rho$. and then plotted $\rho$ as a function of the distance between each pair of networks. We used family and genus as our data points (two separate analysis) for it is unlikely that the same species would be present in geographically distant networks.  To build a null model, we used two different randomization approaches and two different ways to deal with missing data. Hence, we ended up with four different null models for each analysis, one pair for the family and another for the genus level.
+
+In the first randomization approach (figure 4 panels A and C), we randomized the species centrality values within each network prior to calculating the average centrality for each lineage (either per family or per genus, two separate analysis each using one taxonomic rank). The association was then estimated for all pair of networks and plotted as a function of the geographical distance of each network pair. In the second randomization approach (figure 4 panels B and D), instead of randomizing the species centrality values within each network, we randomly draw two networks irrespective of their geographical distance, repeating this procedure for all a set of geographical distances equal to the one seen in the empirical comparison. Hence in our first randomization approach the species identity is randomized but the geographical distances between pairs of networks is kept as in the empirical dataset. In the second randomization approach it is the geographical distance that is randomized while keeping the original species identity. 
+
+In both randomization approaches, there were instances where a given lineage was only present in one of the two comparing networks. Hence to calculate the association between networks when using lineage (e.g. family or genus) average centralities, we had to deal with the limitation that “valid” average centrality value for a given lineage might not be estimated for some of the networks. To overcome this limitation, we filled the missing values in two different ways. In the first, we simply replaced the missing values in a given network by 0 (hereafter called “single 0 scenario”). By doing this we are strongly “breaking” any possible association, which means that only very strong association would still remain significant after adding those zero values (figure 4). The second approach consisted in replacing the average centrality of a lineage (family or genus depending on the analysis) by 0 not only for the network where that lineage was missing but in both networks (“full 0 scenario”). This was done in order to “completely remove” the effect of that lineage from the analysis, while still allowing for the association between the families/genera that are present in both networks to be estimated (supp. figure 4).The prediction of the null model is constructed by doing a LOESS smoothing to each randomized dataset (1000 datasets in total). The empirical LOESS smoothing line is then compared to the group of LOESS smoothing lines defining the null model and the relationship is considered significant if the empirical line does not overlap with the null model lines. 
+
+## Ecospace Occupation
+
+To analyze how ecospace is occupied in different climates, we used an independent dataset of dietary information (EltonTraits v1.0, \textit{35}), and a phylogenetic Principal Component Analysis (phyPCA, \textit{36}, \textit{37}) to obtain the axes of greater variation in the diet of all species present in our dataset. The phyPCA was done using only the 468 species present in our network dataset. Using the first Principal Component (PC1 - greatest loading of fruits), we calculated three different disparity metrics for each network: amplitude (that indicates how broad the dietary niche is for the whole network), average pairwise distance and mean nearest-neighbor distance (that indicates, on average, how far each species is from the closest species in their respective network). We tested the relationship between each of the three metrics with climatic PC1 (which explains about 56% of the variation) to assess any trends of ecospace occupation along climatic gradients.
+
+## The degree of interaction generalization 
+
+For each bird species in each network, we calculated both the number of unique families with which they interact, and also the plant phylogenetic diversity by summing all branch lengths in the pruned phylogeny containing only the plant families with which the species interact (\textit{38}). In order to test if more central species are more generalist (either defined as interacting with a higher number of plant families or by a higher value of plant phylogenetic diversity of their plant partners) we fitted linear models to test for the association between ecological role (PCA centrality) and both the number of families and phylogenetic diversity.
+
+\beginsupplement
+
+\pagebreak
+
+```{r global_options, include = FALSE}
+
+knitr::opts_chunk$set(fig.pos = "H")
+options(tinytex.verbose = TRUE)
+
+```
+
+```{r eval = FALSE, echo = FALSE}
+
+library("rmarkdown")
+library("ggfortify")
+library("ggdist")
+library("cowplot")
+library("ggsci")
+library("patchwork")
+library("kableExtra")
+source("../R/data_preparation_mcmcglmm.R")
+source("../R/data_preparation_mcmcglmm_lambdamuepsnetdiv.R")
+source("../R/summary_mcmcglmm_global_zscore.R")
+source("../R/summary_mcmcglmm_lambdamu_zscore.R")
+source("../R/summary_mcmcglmm_global.R")
+source("../R/summary_mcmcglmm_lambdamu_raw.R")
+source("../R/summary_mcmcglmm_global_zscore_sensitivity.R")
+source("../R/summary_mcmcglmm_lambdamu_zscore_sensitivity.R")
+source("../R/geog_similarity_plots.R")
+source("../R/plots_diet.R")
+source("../R/tree_figure.R")
+
+```
+
+# Network metadata
+
+Table S1 contains all relevant information of the network dataset used in the main paper. These networks were compiled by Pigot et al. 2016.
+
+\blandscape
+
+```{r net_metadata, echo = FALSE, message = FALSE, warning = FALSE}
+
+kable_styling(kable(x = net.metadata[, -c(5, 9, 11, 12, 13)], format = "latex", caption = "Metadata of all networks used in this study. The numbering for location references match the ones from Pigot et al., 2016."), latex_options = "HOLD_position", font_size = 7)
+
+```
+
+\elandscape
+
+# Relationship between the 3 first PCs
+
+Pairwise plots between the first 3 PCs representing the dietary space of species in the study.
+
+```{r echo = FALSE, fig.width = 11, fig.height = 7, fig.cap = "Dietary space for all species used in the study. A: PC2 ~ PC1, B: PC3 ~ PC1, C: PC3 ~ PC2.", message = FALSE, warning = FALSE}
+
+biplot.diet <-
+    plot_grid(
+        plot_grid(pc1pc2 + theme(legend.position = "none"),
+                  NULL,
+                  nrow = 2,
+                  rel_heights = c(0.96, 0.04)
+                  ),
+          pc1pc3 + theme(legend.position = "bottom") + labs(colour = "Dietary Guild"),
+          plot_grid(pc2pc3 + theme(legend.position = "none"),
+                  NULL,
+                  nrow = 2,
+                  rel_heights = c(0.96, 0.04)
+                  ),
+          nrow = 1,
+          labels = LETTERS[1:3]
+          )
+
+biplot.diet
+
+```
+
+\pagebreak
+
+# MCMCglmm
+
+## Individual posterior distributions per tree - Standardized Epsilon and r
+
+The main figure shows the combined posterior distribution for all 112 trees used in the study. Below the posterior distributions for each tree are plotted individually.
+
+```{r echo = FALSE, fig.width = 11, fig.height = 11, fig.cap = "Individual posterior distributions for all trees used using standardized extinction fraction and net diversification rates.", message = FALSE, warning = FALSE}
+
+ggplot(data = epsnet.zscore.plot[-grep("Intercept", epsnet.zscore.plot$variable),]) +
+    geom_density(aes(x = value, colour = variable, group = tree), alpha = 0.3) +
+    geom_vline(xintercept = 0, linetype = "dashed", colour = "darkgrey") +
+    geom_segment(data = posterior.quants.epsnet.zscore[-grep("Intercept", posterior.quants.epsnet.zscore$variable),], aes(y = -1, yend = -1, x = quant2.5, xend = quant97.5, colour = variable)) +
+    geom_segment(data = posterior.quants.epsnet.zscore[-grep("Intercept", posterior.quants.epsnet.zscore$variable),], aes(y = -1, yend = -1, x = quant10, xend = quant90, colour = variable), size = 2) +
+    geom_point(data = posterior.quants.epsnet.zscore[-grep("Intercept", posterior.quants.epsnet.zscore$variable),], aes(x = median, y = -1, colour = variable), size = 4, shape = 15) +
+    geom_point(data = medians.per.tree.epsnet.zscore[-grep("Intercept", medians.per.tree.epsnet.zscore$variable),], aes(x = value, y = 0, colour = variable), size = 2, shape = 19, alpha = 0.3) +
+    scale_colour_manual(values = colorRampPalette(brewer.pal(8, "Accent"))(9)) +
+    scale_fill_manual(values = colorRampPalette(brewer.pal(8, "Accent"))(9)) +
+    facet_wrap(. ~ variable, scale = "free_x") +
+    labs(x = "Value", y = "Posterior Density") +
+    expand_limits(y = -1.5) +
+    coord_flip() +
+    theme_cowplot() +
+    theme(legend.position = "none", panel.spacing.y=unit(2, "lines"))
+
+```
+
+## Individual posterior distributions per tree - Standardized lambda and mu
+
+The main figure shows the combined posterior distribution for all 112 trees used in the study. Below the posterior distributions for each tree are plotted individually.
+
+```{r echo = FALSE, fig.width = 11, fig.height = 11, fig.cap = "Individual posterior distributions for all trees using standardized speciation and extinction rates.", message = FALSE, warning = FALSE}
+
+ggplot(data = lambdamu.zscore.plot[-grep("Intercept", lambdamu.zscore.plot$variable),]) +
+    geom_density(aes(x = value, colour = variable, group = tree), alpha = 0.3) +
+    geom_vline(xintercept = 0, linetype = "dashed", colour = "darkgrey") +
+    geom_segment(data = posterior.quants.lambdamu.zscore[-grep("Intercept", posterior.quants.lambdamu.zscore$variable),], aes(y = -1, yend = -1, x = quant2.5, xend = quant97.5, colour = variable)) +
+    geom_segment(data = posterior.quants.lambdamu.zscore[-grep("Intercept", posterior.quants.lambdamu.zscore$variable),], aes(y = -1, yend = -1, x = quant10, xend = quant90, colour = variable), size = 2) +
+    geom_point(data = posterior.quants.lambdamu.zscore[-grep("Intercept", posterior.quants.lambdamu.zscore$variable),], aes(x = median, y = -1, colour = variable), size = 4, shape = 15) +
+    geom_point(data = medians.per.tree.lambdamu.zscore[-grep("Intercept", medians.per.tree.lambdamu.zscore$variable),], aes(x = value, y = 0, colour = variable), size = 2, shape = 19, alpha = 0.3) +
+    scale_colour_manual(values = colorRampPalette(brewer.pal(8, "Accent"))(9)) +
+    scale_fill_manual(values = colorRampPalette(brewer.pal(8, "Accent"))(9)) +
+    facet_wrap(. ~ variable, scale = "free_x") +
+    labs(x = "Value", y = "Posterior Density") +
+    expand_limits(y = -1.5) +
+    coord_flip() +
+    theme_cowplot() +
+    theme(legend.position = "none", panel.spacing.y=unit(2, "lines")) 
+
+```
+
+## Sensitivity analysis: Individual posterior distributions per tree - Standardized Epsilon and r
+
+The main figure shows the combined posterior distribution for all 112 trees used in the study. Below the posterior distributions for each tree are plotted individually.
+
+```{r echo = FALSE, fig.width = 11, fig.height = 11, fig.cap = "Individual posterior distributions for all trees used using standardized extinction fraction and net diversification rates.", message = FALSE, warning = FALSE}
+
+ggplot(data = epsnet.zscore.sens.plot[-grep("Intercept", epsnet.zscore.sens.plot$variable),]) +
+    geom_density(aes(x = value, colour = variable, group = tree), alpha = 0.3) +
+    geom_vline(xintercept = 0, linetype = "dashed", colour = "darkgrey") +
+    geom_segment(data = posterior.quants.epsnet.zscore.sens[-grep("Intercept", posterior.quants.epsnet.zscore.sens$variable),], aes(y = -1, yend = -1, x = quant2.5, xend = quant97.5, colour = variable)) +
+    geom_segment(data = posterior.quants.epsnet.zscore.sens[-grep("Intercept", posterior.quants.epsnet.zscore.sens$variable),], aes(y = -1, yend = -1, x = quant10, xend = quant90, colour = variable), size = 2) +
+    geom_point(data = posterior.quants.epsnet.zscore.sens[-grep("Intercept", posterior.quants.epsnet.zscore.sens$variable),], aes(x = median, y = -1, colour = variable), size = 4, shape = 15) +
+    geom_point(data = medians.per.tree.epsnet.zscore.sens[-grep("Intercept", medians.per.tree.epsnet.zscore.sens$variable),], aes(x = value, y = 0, colour = variable), size = 2, shape = 19, alpha = 0.3) +
+    scale_colour_manual(values = colorRampPalette(brewer.pal(8, "Accent"))(9)) +
+    scale_fill_manual(values = colorRampPalette(brewer.pal(8, "Accent"))(9)) +
+    facet_wrap(. ~ variable, scale = "free_x") +
+    labs(x = "Value", y = "Posterior Density") +
+    expand_limits(y = -1.5) +
+    coord_flip() +
+    theme_cowplot() +
+    theme(legend.position = "none", panel.spacing.y=unit(2, "lines"))
+
+```
+
+## Sensitivity analysis: Individual posterior distributions per tree - Standardized lambda and mu
+
+The main figure shows the combined posterior distribution for all 112 trees used in the study. Below the posterior distributions for each tree are plotted individually.
+
+```{r echo = FALSE, fig.width = 11, fig.height = 11, fig.cap = "Individual posterior distributions for all trees using standardized speciation and extinction rates.", message = FALSE, warning = FALSE}
+
+ggplot(data = lambdamu.zscore.sens.plot[-grep("Intercept", lambdamu.zscore.sens.plot$variable),]) +
+    geom_density(aes(x = value, colour = variable, group = tree), alpha = 0.3) +
+    geom_vline(xintercept = 0, linetype = "dashed", colour = "darkgrey") +
+    geom_segment(data = posterior.quants.lambdamu.zscore.sens[-grep("Intercept", posterior.quants.lambdamu.zscore.sens$variable),], aes(y = -1, yend = -1, x = quant2.5, xend = quant97.5, colour = variable)) +
+    geom_segment(data = posterior.quants.lambdamu.zscore.sens[-grep("Intercept", posterior.quants.lambdamu.zscore.sens$variable),], aes(y = -1, yend = -1, x = quant10, xend = quant90, colour = variable), size = 2) +
+    geom_point(data = posterior.quants.lambdamu.zscore.sens[-grep("Intercept", posterior.quants.lambdamu.zscore.sens$variable),], aes(x = median, y = -1, colour = variable), size = 4, shape = 15) +
+    geom_point(data = medians.per.tree.lambdamu.zscore.sens[-grep("Intercept", medians.per.tree.lambdamu.zscore.sens$variable),], aes(x = value, y = 0, colour = variable), size = 2, shape = 19, alpha = 0.3) +
+    scale_colour_manual(values = colorRampPalette(brewer.pal(8, "Accent"))(9)) +
+    scale_fill_manual(values = colorRampPalette(brewer.pal(8, "Accent"))(9)) +
+    facet_wrap(. ~ variable, scale = "free_x") +
+    labs(x = "Value", y = "Posterior Density") +
+    expand_limits(y = -1.5) +
+    coord_flip() +
+    theme_cowplot() +
+    theme(legend.position = "none", panel.spacing.y=unit(2, "lines")) 
+
+```
+
+\pagebreak
+
+## Results using raw rates - Epsilon and r
+
+The main figure shows the combined posterior distribution for all 112 trees used in the study from the analysis using raw rates per network. Below the posterior distributions for each tree are plotted individually for the analysis using raw diversification rates.
+
+```{r echo = FALSE, fig.width = 11, fig.height = 11, fig.cap = "Posterior distributions of parameters using raw extinction fraction and net diversification rates.", message = FALSE, warning = FALSE}
+
+ggplot(data = epsnet.raw.plot[-grep("Intercept", epsnet.raw.plot$variable),]) +
+    geom_density(aes(x = value, colour = variable, group = tree), alpha = 0.3) +
+    geom_vline(xintercept = 0, linetype = "dashed", colour = "darkgrey") +
+    geom_segment(data = posterior.quants.epsnet.raw[-grep("Intercept", posterior.quants.epsnet.raw$variable),], aes(y = -1, yend = -1, x = quant2.5, xend = quant97.5, colour = variable)) +
+    geom_segment(data = posterior.quants.epsnet.raw[-grep("Intercept", posterior.quants.epsnet.raw$variable),], aes(y = -1, yend = -1, x = quant10, xend = quant90, colour = variable), size = 2) +
+    geom_point(data = posterior.quants.epsnet.raw[-grep("Intercept", posterior.quants.epsnet.raw$variable),], aes(x = median, y = -1, colour = variable), size = 4, shape = 15) +
+    geom_point(data = medians.per.tree.epsnet.raw[-grep("Intercept", medians.per.tree.epsnet.raw$variable),], aes(x = value, y = 0, colour = variable), size = 2, shape = 19, alpha = 0.3) +
+    scale_colour_manual(values = colorRampPalette(brewer.pal(8, "Accent"))(9)) +
+    scale_fill_manual(values = colorRampPalette(brewer.pal(8, "Accent"))(9)) +
+    facet_wrap(. ~ variable, scales = "free_y") +
+    labs(x = "Value", y = "Posterior Density") +
+    expand_limits(y = -1.5) +
+    coord_flip() +
+    theme_cowplot() +
+    theme(legend.position = "none", panel.spacing.y=unit(2, "lines"))
+
+```
+
+## Results using raw rates - Lambda and mu
+
+The main figure shows the combined posterior distribution for all 112 trees used in the study from the analysis using raw rates per network. Below the posterior distributions for each tree are plotted individually for the analysis using raw diversification rates.
+
+```{r echo = FALSE, fig.width = 11, fig.height = 11, fig.cap = "Posterior distributions of parameters using raw speciation and extinction rates.", message = FALSE, warning = FALSE}
+
+ggplot(data = lambdamu.raw.plot[-grep("Intercept", lambdamu.raw.plot$variable),]) +
+    geom_density(aes(x = value, colour = variable, group = tree), alpha = 0.3) +
+    geom_vline(xintercept = 0, linetype = "dashed", colour = "darkgrey") +
+    geom_segment(data = posterior.quants.lambdamu.raw[-grep("Intercept", posterior.quants.lambdamu.raw$variable),], aes(y = -1, yend = -1, x = quant2.5, xend = quant97.5, colour = variable)) +
+    geom_segment(data = posterior.quants.lambdamu.raw[-grep("Intercept", posterior.quants.lambdamu.raw$variable),], aes(y = -1, yend = -1, x = quant10, xend = quant90, colour = variable), size = 2) +
+    geom_point(data = posterior.quants.lambdamu.raw[-grep("Intercept", posterior.quants.lambdamu.raw$variable),], aes(x = median, y = -1, colour = variable), size = 4, shape = 15) +
+    geom_point(data = medians.per.tree.lambdamu.raw[-grep("Intercept", medians.per.tree.lambdamu.raw$variable),], aes(x = value, y = 0, colour = variable), size = 2, shape = 19, alpha = 0.3) +
+    scale_colour_manual(values = colorRampPalette(brewer.pal(8, "Accent"))(9)) +
+    scale_fill_manual(values = colorRampPalette(brewer.pal(8, "Accent"))(9)) +
+    facet_wrap(. ~ variable, scales = "free_y") +
+    labs(x = "Value", y = "Posterior Density") +
+    expand_limits(y = -1.5) +
+    coord_flip() +
+    theme_cowplot() +
+    theme(legend.position = "none", panel.spacing.y=unit(2, "lines"))
+
+```
+
+\pagebreak
+
+# Ecological role similarity by distance
+
+Figure 3 in the main text shows the null distributions generated by substituting missing lineage by 0 only in the network where the lineage is not present. The plots below show the same results but with the null distribution generated substituting the mean lineage centrality in both networks by 0.
+
+```{r betweennet, echo = FALSE, warning = FALSE, message = FALSE, fig.width = 11, fig.height = 11, fig.cap = "Association between mean PCA centrality per family (A and B) or genus (C and D) and geographical distance, using the full 0 null model where the average centrality of missing lineages is replaced by 0 in both networks.", warning = FALSE}
+
+plot_grid(family.within.full0,
+          family.between.full0,
+          genus.within.full0,
+          genus.between.full0,
+          nrow = 2,
+          align = "hv",
+          labels = LETTERS[1:4]
+          )
+
+```
+
+\pagebreak
+
+# Climatic PCA
+
+Biplot of PCA of climatic factors (ann.prec = Annual Total Precipitation; prec.seas = Precipitation Seasonality; ann.mean.temp = Annual Mean Temperature; temp.seas = Temperature Seasonality).
+
+```{r echo = FALSE, fig.width = 11, fig.height = 9, fig.cap = "PCA of the climatic variables used in the study. It is worth noting that temperature variables align well with PC1 and precipitation align well with PC2 - although there is some of it on PC1 as well", message = FALSE, warning = FALSE}
+
+rownames(clim.pca$rotation) <- c("Annual Mean\nTemperature", "Temperature Seasonality", "Annual Precipitation", "Precipitation Seasonality")
+autoplot(clim.pca, loadings = TRUE, loadings.colour = "red", loadings.label = TRUE, loadings.label.size = 4) + xlim(-0.4, 0.3) + theme_cowplot()
+
+```
+
+\pagebreak
+
+# PCA centrality
+
+Relationship between the three centrality metrics used in the paper.
+
+```{r echo = FALSE, warning = FALSE, message = FALSE, fig.width = 11, fig.height = 12, fig.cap = "A: PCA of the centrality metrics (degree, closeness and katz) used in the study. The PCA was calculated using all metrics scaled per network and combined in a single dataset and PC1 was used as the general centrality since it explains 93.38% of the total variance.", warning = FALSE}
+
+pca.cent <- autoplot(prcomp(setNames(full.table.bin[, c("degree.z", "closeness.z", "katz.z")], c("Degree", "Closeness", "Katz")), scale = FALSE), loadings = TRUE, loadings.label = TRUE, loadings.label.size = 8) + theme_cowplot()
+
+clos.katz <- 
+    ggplot(data = fulldata.net.bin) +
+    geom_point(aes(x = closeness.z, y = katz.z), alpha = 0.7) +
+    geom_smooth(aes(x = closeness.z, y = katz.z), se = FALSE, linetype = "dashed", alpha = 0.3, size = 0.5) +
+    labs(x = "Closeness centrality", y = "Katz centrality") +
+    theme(legend.position = "none") +
+    theme_cowplot() 
+
+clos.deg <- 
+    ggplot(data = fulldata.net.bin) +
+    geom_point(aes(x = closeness.z, y = degree.z), alpha = 0.7) +
+    geom_smooth(aes(x = closeness.z, y = degree.z), se = FALSE, linetype = "dashed", alpha = 0.3, size = 0.5) +
+    labs(x = "Closeness centrality", y = "Degree centrality") +
+    theme(legend.position = "none") +
+    theme_cowplot() 
+
+katz.deg <- 
+    ggplot(data = fulldata.net.bin) +
+    geom_point(aes(x = katz.z, y = degree.z), alpha = 0.7) +
+    geom_smooth(aes(x = katz.z, y = degree.z), se = FALSE, linetype = "dashed", alpha = 0.3, size = 0.5) +
+    labs(x = "Katz centrality", y = "Degree centrality") +
+    theme(legend.position = "none") +
+    theme_cowplot() 
+
+grid1 <-
+    plot_grid(clos.katz,
+              clos.deg,
+              katz.deg,
+              align = "v",
+              ncol = 1,
+              labels = LETTERS[2:4],
+              axis = "x"
+              )
+
+
+plot_grid(pca.cent,
+          grid1,
+          align = "h",
+          ncol = 2,
+          labels = c("A", NULL),
+          axis = "x",
+          rel_widths = c(0.7, 0.3)
+          )
+
+```
+
+\pagebreak
+
+# Degree of specialization
+
+## Association between centrality and Number of Plant Families
+
+```{r echo = FALSE, fig.width = 11, fig.height = 9, eval = TRUE, fig.cap = "Relationship between number of plant families with which each bird species interact, and the phylogenetic diversity of plant families", message = FALSE, warning = FALSE}
+
+int.tax <- read.csv("../data/interaction_per_taxonomy.csv")
+int.tax <- cbind(int.tax, fulldata.net.bin[match(paste(int.tax$species, int.tax$id, sep = "_"), paste(fulldata.net.bin$species, fulldata.net.bin$id, sep = "_")), c("clim.pc1", "clim.pc2")])
+int.tax <- int.tax[-which(is.na(int.tax$clim.pc1)),]
+
+```
+
+```{r echo = FALSE, warning = FALSE, message = FALSE, fig.width = 11, fig.height = 9, fig.cap = "Relationship between PCA centrality of birds and number of plant families, showing that the more central a species is, the more generalist it is concerning the identity of their partners.", warning = FALSE}
+
+ggplot(data = int.tax) +
+    geom_point(aes(x = pca, y = n.plant.families)) +
+    geom_smooth(aes(x = pca, y = n.plant.families), method = "lm", se = FALSE) +
+    labs(x = "PCA centrality", y = "Number of Plant Families") +
+    theme_cowplot()
+
+```
+
+\pagebreak
+
+```{r nplantfam_pca_table, echo = FALSE, message = FALSE, warning = FALSE}
+
+kable_styling(kable(x = summary(lm(n.plant.families ~ pca, data = int.tax))$coefficients, format = "simple", caption = paste0("Summary of linear model testing for the relationship between PCA centrality and Number of Plant Families. $R^2$ = ", round(summary(lm(n.plant.families ~ pca, data = int.tax))$adj.r.squared, 4))), latex_options = "HOLD_position", , font_size = 8)
+
+```
+
+\pagebreak
+
+```{r echo = FALSE, warning = FALSE, message = FALSE, fig.width = 11, fig.height = 9, fig.cap = "Relationship between PCA centrality of birds and number of plant families, accounting for the total number of plant families.", warning = FALSE}
+
+resid.famsp <- summary(lm(n.plant.families ~ n.plant.species, data = int.tax))$residuals
+
+ggplot(data = int.tax[!is.na(int.tax$n.plant.families),]) +
+    geom_point(aes(x = pca, y = resid.famsp)) +
+    geom_smooth(aes(x = pca, y = resid.famsp), method = "lm", se = FALSE) +
+    labs(x = "PCA centrality", y = "Number of Plant Families (Residuals)") +
+    theme_cowplot()
+
+```
+
+\pagebreak
+
+```{r nplantfam_pca_table_resid, echo = FALSE, message = FALSE, warning = FALSE}
+
+kable_styling(kable(x = summary(lm(resid.famsp ~ int.tax$pca[!is.na(int.tax$n.plant.families)]))$coefficients, format = "simple", caption = paste0("Summary of linear model testing for the relationship between PCA centrality and Number of Plant Families, accounting for the total number of plant families. $R^2$ = ", round(summary(lm(resid.famsp ~ int.tax$pca[!is.na(int.tax$n.plant.families)]))$adj.r.squared, 4))), latex_options = "HOLD_position", , font_size = 8)
+
+```
+
+# Association between centrality and Phylogenetic Diversity of Plants
+
+The following tables show the summary of the association between PCA centrality and phylogenetic diversity of plants controlled either by the number of plant families or species.
+
+```{r phylodiv_pca_sp, echo = FALSE, warning = FALSE, message = FALSE, fig.width = 11, fig.height = 9, fig.cap = paste0("Relationship between PCA centrality of birds and phylogenetic diversity of plants accounting for the total number of plant species, showing that the more central a species is, the more generalist it is concerning the identity of their partners. $R^2$ = ", round(summary(lm(nplantsp.resid ~ int.tax$pca[!is.na(int.tax$phylodiv)]))$adj.r.squared, 4))}
+
+ggplot(int.tax) +
+    geom_point(aes(x = pca, y = phylodiv)) +
+    geom_smooth(aes(x = pca, y = phylodiv), method = "lm", se = FALSE) +
+    labs(x = "PCA Centrality", y = "Phylogenetic Diversity") +
+    theme_cowplot()
+
+```
+
+```{r echo = FALSE, message = FALSE, warning = FALSE}
+
+kable_styling(kable(x = summary(lm(phylodiv ~ pca, data = int.tax))$coefficients, format = "simple", caption = paste0("Summary of linear model testing for the relationship between PCA centrality and Phylogenetic Diversity. $R^2$ = ", round(summary(lm(phylodiv ~ pca, data = int.tax))$adj.r.squared, 4))), latex_options = "HOLD_position", font_size = 8)
+
+```
+
+\pagebreak
+
+```{r phylodiv_pca_fam, echo = FALSE, warning = FALSE, message = FALSE, fig.width = 11, fig.height = 9}
+
+nplantfam.resid <- summary(lm(phylodiv ~ n.plant.families, data = int.tax))$residuals
+
+kable_styling(kable(x = summary(lm(nplantfam.resid ~ int.tax$pca[!is.na(int.tax$phylodiv)]))$coefficients, format = "simple", caption = "Summary of linear model testing for the relationship between PCA centrality and Phylogenetic Diversity, accounting for the total number of families"), latex_options = "HOLD_position", font_size = 8)
+
+```
+
+```{r phylodiv_pca_fam_plot, echo = FALSE, warning = FALSE, message = FALSE, fig.width = 11, fig.height = 9, fig.cap = paste0("Relationship between PCA centrality of birds and phylogenetic diversity of plants accounting for the total number of plant families, showing that the more central a species is, the more generalist it is concerning the identity of their partners. $R^2$ = ", round(summary(lm(nplantfam.resid ~ int.tax$pca[!is.na(int.tax$phylodiv)]))$adj.r.squared, 4))}
+
+ggplot(int.tax[!is.na(int.tax$phylodiv),]) +
+    geom_point(aes(x = pca, y = nplantfam.resid)) +
+    geom_smooth(aes(x = pca, y = nplantfam.resid), method = "lm", se = FALSE) +
+    labs(x = "PCA Centrality", y = "Phylogenetic Diversity (Residuals)") +
+    theme_cowplot()
+
+```
+
+\pagebreak
+
+# Ecospace Occupation
+
+## Dietary phyPCA summary
+
+```{r echo = FALSE, message = FALSE, warning = FALSE}
+
+kable_styling(kable(x = round(pPCA.diet.mass$L, 3), format = "simple", caption = "Loadings of each dietary item in each principal component of the Phylogenetic PCA with dietary data."), latex_options = "HOLD_position", font_size = 8)
+
+```
+
+```{r echo = FALSE, message = FALSE, warning = FALSE}
+
+kable_styling(kable(x = rbind("Standard deviation" = round(sqrt(diag(pPCA.diet.mass$Eval)), 3), "Proportion of Variance" = round(diag(pPCA.diet.mass$Eval)/sum(pPCA.diet.mass$Eval), 3), "Cumulative Proportion" = round(cumsum(diag(pPCA.diet.mass$Eval)/sum(pPCA.diet.mass$Eval)), 3)), format = "simple", caption = "Individual and cumulative variance explained by each of the principal components of the Phylogenetic PCA with dietary data"), latex_options = "HOLD_position", font_size = 8)
+
+```
+
+## Summaries from linear models between disparity and climatic PCs
+
+Summary of linear models between amplitude, average pairwise distance and mean nearest-neighbor distance and the climatic PC1.
+
+```{r ecospace_table, echo = FALSE, message = FALSE, warning = FALSE}
+
+amp.pc1 <- summary(lm(disp.per.net1$amp ~ disp.per.net1$clim.pc1))
+mnnd.pc1 <- summary(lm(disp.per.net1$mnnd ~ disp.per.net1$clim.pc1))
+av.pc1 <- summary(lm(disp.per.net1$av.pdist ~ disp.per.net1$clim.pc1))
+
+amp.pc2 <- summary(lm(disp.per.net1$amp ~ disp.per.net1$clim.pc2))
+mnnd.pc2 <- summary(lm(disp.per.net1$mnnd ~ disp.per.net1$clim.pc2))
+av.pc2 <- summary(lm(disp.per.net1$av.pdist ~ disp.per.net1$clim.pc2))
+
+lm.disp <- data.frame(
+  disparity = c("Amplitude", "Mean NN Distance", "Average Distance"),
+  pvalue_clim.pc1 = round(c(amp.pc1$coefficients[2,4], mnnd.pc1$coefficients[2,4], av.pc1$coefficients[2,4]), 5),
+  r2_clim.pc1 = round(c(amp.pc1$adj.r.squared, mnnd.pc1$adj.r.squared, av.pc1$adj.r.squared), 5),
+  pvalue_clim.pc2 = round(c(amp.pc2$coefficients[2,4], mnnd.pc2$coefficients[2,4], av.pc2$coefficients[2,4]), 5),
+  r2_clim.pc2 = round(c(amp.pc2$adj.r.squared, mnnd.pc2$adj.r.squared, av.pc2$adj.r.squared), 5)
+)
+
+kable_styling(kable(x = setNames(lm.disp, c("Disparity Metric", "p-value ClimPC1", "R2 ClimPC1", "p-value ClimPC2", "R2 ClimPC2")), format = "simple", caption = "Summaries from linear models between disparity metrics and climatic PCs"), latex_options = "HOLD_position")
+
+```
+
+```{r ecospace_plot, echo = FALSE, fig.cap = "Different axes of specialization of bird species analyzed in the study. A - C: Relationship between Amplitude, Mean Nearest-Neighbor Distance and Average Pairwise Distance of species and Climatic PC1. D - F: Relationship between Amplitude, Mean Nearest-Neighbor Distance and Average Pairwise Distance of species and Climatic PC2. The only significant relationship is found between Average Pairwise Distance and Climatic PC1 (panel C - red line).", message = FALSE, warning = FALSE, fig.height = 7, fig.width = 11}
+
+amp.pc1.plot <- ggplot(data = disp.per.net1) +
+	geom_point(aes(x = clim.pc1, y = amp.resid)) +
+	geom_smooth(aes(x = clim.pc1, y = amp.resid), colour = "blue", method = "lm", se = FALSE) +
+	labs(x = "Climatic PC1", y = "Amplitude") +
+	theme_cowplot() +
+    theme(axis.title.y = element_text(size = 8))
+
+mnnd.pc1.plot <- ggplot(data = disp.per.net1) +
+	geom_point(aes(x = clim.pc1, y = mnnd.resid)) +
+	geom_smooth(aes(x = clim.pc1, y = mnnd.resid), colour = "blue", method = "lm", se = FALSE) +
+	labs(x = "Climatic PC1", y = "Mean Nearest-Neighbor Distance") +
+	theme_cowplot() +
+    theme(axis.title.y = element_text(size = 8))
+
+av.pc1.plot <- ggplot(data = disp.per.net1) +
+	geom_point(aes(x = clim.pc1, y = avpdist.resid)) +
+	geom_smooth(aes(x = clim.pc1, y = avpdist.resid), colour = "red", method = "lm", se = FALSE) +
+	labs(x = "Climatic PC1", y = "Average Pairwise Distance") +
+	theme_cowplot() +
+    theme(axis.title.y = element_text(size = 8))
+
+
+amp.pc2.plot <- ggplot(data = disp.per.net1) +
+	geom_point(aes(x = clim.pc2, y = amp.resid)) +
+	geom_smooth(aes(x = clim.pc2, y = amp.resid), colour = "blue", method = "lm", se = FALSE) +
+	labs(x = "Climatic PC2", y = "Amplitude") +
+	theme_cowplot() +
+    theme(axis.title.y = element_text(size = 8))
+
+mnnd.pc2.plot <- ggplot(data = disp.per.net1) +
+	geom_point(aes(x = clim.pc2, y = mnnd.resid)) +
+	geom_smooth(aes(x = clim.pc2, y = mnnd.resid), colour = "blue", method = "lm", se = FALSE) +
+	labs(x = "Climatic PC2", y = "Mean Nearest-Neighbor Distance") +
+	theme_cowplot() +
+    theme(axis.title.y = element_text(size = 8))
+
+av.pc2.plot <- ggplot(data = disp.per.net1) +
+	geom_point(aes(x = clim.pc2, y = avpdist.resid)) +
+	geom_smooth(aes(x = clim.pc2, y = avpdist.resid), colour = "blue", method = "lm", se = FALSE) +
+	labs(x = "Climatic PC1", y = "Average Pairwise Distance") +
+	theme_cowplot() +
+    theme(axis.title.y = element_text(size = 8))
+
+((amp.pc1.plot + mnnd.pc1.plot + av.pc1.plot) / (amp.pc2.plot + mnnd.pc2.plot + av.pc2.plot)) + plot_annotation(tag_levels = "A")
+
+```
+
+## Summaries from linear models between residuals from correlation between disparity and species richness and climatic PCs
+
+Summary of linear models between amplitude, average pairwise distance and mean nearest-neighbor distance and the climatic PC1.
+
+```{r ecospace_resid_table, echo = FALSE, message = FALSE, warning = FALSE}
+
+amp.pc1.resid <- summary(lm(amp.resid ~ disp.per.net1$clim.pc1))
+mnnd.pc1.resid <- summary(lm(mnnd.resid ~ disp.per.net1$clim.pc1))
+av.pc1.resid <- summary(lm(avpdist.resid ~ disp.per.net1$clim.pc1))
+
+amp.pc2.resid <- summary(lm(amp.resid ~ disp.per.net1$clim.pc2))
+mnnd.pc2.resid <- summary(lm(mnnd.resid ~ disp.per.net1$clim.pc2))
+av.pc2.resid <- summary(lm(avpdist.resid ~ disp.per.net1$clim.pc2))
+
+lm.disp.resid <- data.frame(
+  disparity = c("Amplitude", "Mean NN Distance", "Average Distance"),
+  pvalue_clim.pc1 = round(c(amp.pc1.resid$coefficients[2,4], mnnd.pc1.resid$coefficients[2,4], av.pc1.resid$coefficients[2,4]), 5),
+  r2_clim.pc1 = round(c(amp.pc1.resid$adj.r.squared, mnnd.pc1.resid$adj.r.squared, av.pc1.resid$adj.r.squared), 5),
+  pvalue_clim.pc2 = round(c(amp.pc2.resid$coefficients[2,4], mnnd.pc2.resid$coefficients[2,4], av.pc2.resid$coefficients[2,4]), 5),
+  r2_clim.pc2 = round(c(amp.pc2.resid$adj.r.squared, mnnd.pc2.resid$adj.r.squared, av.pc2.resid$adj.r.squared), 5))
+
+kable_styling(kable(x = setNames(lm.disp.resid, c("Disparity Metric", "p-value ClimPC1", "R2 ClimPC1", "p-value ClimPC2", "R2 ClimPC2")), format = "simple", caption = "Summaries from linear models between residual disparity metrics and climatic PCs"), latex_options = "HOLD_position")
+
+```
+
+```{r ecospace_resid_plot, echo = FALSE, fig.cap = "Different axes of specialization of bird species analyzed in the study. A - C: Relationship between Amplitude, Mean Nearest-Neighbor Distance and Average Pairwise Distance of species (accounted for species richness) and Climatic PC1. D - F: Relationship between Amplitude, Mean Nearest-Neighbor Distance and Average Pairwise Distance of species (accounted for species richness) and Climatic PC2. The only significant relationship is found between Average Pairwise Distance and Climatic PC1 (panel C - red line).", message = FALSE, warning = FALSE, fig.height = 7, fig.width = 11}
+
+amp.pc1.resid.plot <- ggplot(data = resid.plot) +
+	geom_point(aes(x = clim.pc1, y = amp.resid)) +
+	geom_smooth(aes(x = clim.pc1, y = amp.resid), colour = "blue", method = "lm", se = FALSE) +
+	labs(x = "Climatic PC1", y = "Amplitude (richness-corrected)") +
+	theme_cowplot() +
+    theme(axis.title.y = element_text(size = 8))
+
+mnnd.pc1.resid.plot <- ggplot(data = resid.plot) +
+	geom_point(aes(x = clim.pc1, y = mnnd.resid)) +
+	geom_smooth(aes(x = clim.pc1, y = mnnd.resid), colour = "blue", method = "lm", se = FALSE) +
+	labs(x = "Climatic PC1", y = "Mean Nearest-Neighbor Distance\n(richness-corrected)") +
+	theme_cowplot() +
+    theme(axis.title.y = element_text(size = 8))
+
+av.pc1.resid.plot <- ggplot(data = resid.plot) +
+	geom_point(aes(x = clim.pc1, y = avpdist.resid)) +
+	geom_smooth(aes(x = clim.pc1, y = avpdist.resid), colour = "red", method = "lm", se = FALSE) +
+	labs(x = "Climatic PC1", y = "Average Pairwise Distance\n(richness-corrected)") +
+	theme_cowplot() +
+    theme(axis.title.y = element_text(size = 8))
+
+
+amp.pc2.resid.plot <- ggplot(data = resid.plot) +
+	geom_point(aes(x = clim.pc2, y = amp.resid)) +
+	geom_smooth(aes(x = clim.pc2, y = amp.resid), colour = "blue", method = "lm", se = FALSE) +
+	labs(x = "Climatic PC2", y = "Amplitude (richness-corrected)") +
+	theme_cowplot() +
+    theme(axis.title.y = element_text(size = 8))
+
+mnnd.pc2.resid.plot <- ggplot(data = resid.plot) +
+	geom_point(aes(x = clim.pc2, y = mnnd.resid)) +
+	geom_smooth(aes(x = clim.pc2, y = mnnd.resid), colour = "blue", method = "lm", se = FALSE) +
+	labs(x = "Climatic PC2", y = "Mean Nearest-Neighbor Distance\n(richness-corrected)") +
+	theme_cowplot() +
+    theme(axis.title.y = element_text(size = 8))
+
+av.pc2.resid.plot <- ggplot(data = resid.plot) +
+	geom_point(aes(x = clim.pc2, y = avpdist.resid)) +
+	geom_smooth(aes(x = clim.pc2, y = avpdist.resid), colour = "blue", method = "lm", se = FALSE) +
+	labs(x = "Climatic PC1", y = "Average Pairwise Distance\n(richness-corrected)") +
+	theme_cowplot() +
+    theme(axis.title.y = element_text(size = 8))
+
+(amp.pc1.resid.plot + mnnd.pc1.resid.plot + av.pc1.resid.plot) / (amp.pc2.resid.plot + mnnd.pc2.resid.plot + av.pc2.resid.plot)
+
+```

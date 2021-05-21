@@ -1,0 +1,219 @@
+#library("ggradar")
+#library("mulTree")
+library("caper")
+library("ggsci")
+source("../R/tree_figure.R")
+
+diet.data <- read.csv("../data/BirdFuncDat.txt", sep = "\t", stringsAsFactors = FALSE)
+
+diet.clean <- diet.data[, c(2, 3, 4, 8, 36, 20, 10, 13:19)]
+diet.clean$Diet.Vert <- diet.data$Diet.Vend + diet.data$Diet.Vect
+
+diet.clean <- diet.clean[match(as.character(fulldata.net.bin$species), gsub(" ", "_", as.character(diet.clean$Scientific))),]
+diet.clean[, 7:15] <- diet.clean[, 7:15] / rowSums(diet.clean[, 7:15])
+diet.clean$lat.clim <- fulldata.net.bin$lat.clim
+
+names(diet.clean)[c(4, 7:15)] <- c("species", "Invertebrates", "Fish", "Unknown", "Carrion", "Fruit", "Nectar", "Seeds", "Plant Material", "Vertebrates")
+
+diet.clean$shannon <- apply(diet.clean[, 7:15], 1, vegan::diversity)
+
+diet.clean <- cbind(diet.clean, fulldata.net.bin[, c("clim.pc1", "clim.pc2", "epsilon.eric0102", "epsilon.hack0006", "netdiv.eric0102", "netdiv.hack0006")])
+
+
+## radar.temp <-
+##     ggradar(diet.clean[diet.clean$lat.clim == "Temperate", c(7, 8, 10:15)],
+##         group.line.width = 0.5,
+##         group.point.size = 0.5,
+##         background.circle.transparency = 0,
+##         gridline.min.colour = viridis(3, direction = -1, end = 0.9)[1],
+##         gridline.mid.colour = viridis(3, direction = -1)[2],
+##         gridline.max.colour = viridis(3, direction = -1)[3],
+##         gridline.min.linetype = "dashed",
+##         gridline.mid.linetype = "dashed",
+##         gridline.max.linetype = "dashed",
+##         grid.line.width = 1,
+##         axis.label.size = 6) +
+##     #scale_colour_viridis_d() +
+##     scale_colour_manual(values = rep(brewer.pal(3, "Set1")[2], nrow(diet.clean[diet.clean$lat.clim == "Temperate", 7:15]),)) +
+##     theme(legend.position = "none", plot.title = element_text(hjust = 0.5)) +
+##     labs(title = "Temperate Networks")
+
+## radar.trop <-
+##     ggradar(diet.clean[diet.clean$lat.clim == "Tropical", c(7, 8, 10:15)],
+##         group.line.width = 0.5,
+##         group.point.size = 0.5,
+##         background.circle.transparency = 0,
+##         gridline.min.colour = viridis(3, direction = -1, end = 0.9)[1],
+##         gridline.mid.colour = viridis(3, direction = -1)[2],
+##         gridline.max.colour = viridis(3, direction = -1)[3],
+##         gridline.min.linetype = "dashed",
+##         gridline.mid.linetype = "dashed",
+##         gridline.max.linetype = "dashed",
+##         grid.line.width = 1,
+##         axis.label.size = 6) +
+##     #scale_colour_viridis_d() +
+##     scale_colour_manual(values = rep(brewer.pal(3, "Set1")[1], nrow(diet.clean[diet.clean$lat.clim == "Tropical", 7:15]))) +
+##     theme(legend.position = "none", plot.title = element_text(hjust = 0.5)) +
+##     labs(title = "Tropical Networks")
+
+## radar.grid <-
+##     plot_grid(radar.temp,
+##           radar.trop,
+##           ncol = 2,
+##           align = 'h',
+##           labels = c("A", "B"),
+##           label_size = 24
+##           )
+
+
+diet.clean$pca <- fulldata.net.bin$pca[match(gsub(" ", "_", diet.clean$species), as.character(fulldata.net.bin$species))]
+
+diet.clean$bodymass.z <- setNames(unlist(aggregate(log(diet.clean$BodyMass.Value), by = list(fulldata.net.bin$id), FUN = scale)$x), NULL)
+
+net.metadata <- net.metadata[-c(2, 7, 10, 18, 27),]
+net.metadata$clim.pc1 <- prcomp(net.metadata[, 14:17], scale = TRUE)$x[,1]
+net.metadata$clim.pc2 <- prcomp(net.metadata[, 14:17], scale = TRUE)$x[,2]
+
+
+fulldata.net.bin$body.mass <- log(diet.data$BodyMass.Value[match(as.character(fulldata.net.bin$species), gsub(" ", "_", diet.data$Scientific))])
+
+net.metadata$amplitude <- aggregate(fulldata.net.bin$body.mass, by = list(fulldata.net.bin$id), FUN = function(x){max(x) - min(x)})$x
+
+net.metadata$mean.pair.dist <- aggregate(fulldata.net.bin$body.mass, by = list(fulldata.net.bin$id), FUN = function(x){mean(dist(x))})$x
+
+net.metadata$mnnd <- aggregate(fulldata.net.bin$body.mass, by = list(fulldata.net.bin$id), FUN = function(x){mean(apply(as.matrix(dist(x)), 2, function(y){sort(y)[2]}))})$x
+
+
+plot(net.metadata$clim.pc1, net.metadata$amplitude)
+plot(net.metadata$clim.pc2, net.metadata$amplitude)
+
+plot(net.metadata$clim.pc1, net.metadata$mean.pair.dist)
+plot(net.metadata$clim.pc2, net.metadata$mean.pair.dist)
+
+plot(net.metadata$clim.pc1, net.metadata$mnnd)
+plot(net.metadata$clim.pc2, net.metadata$mnnd)
+
+summary(lm(net.metadata$amplitude ~ net.metadata$clim.pc1))
+summary(lm(net.metadata$mean.pair.dist ~ net.metadata$clim.pc1))
+summary(lm(net.metadata$mnnd ~ net.metadata$clim.pc1))
+
+summary(lm(net.metadata$amplitude ~ net.metadata$clim.pc2))
+summary(lm(net.metadata$mean.pair.dist ~ net.metadata$clim.pc2))
+summary(lm(net.metadata$mnnd ~ net.metadata$clim.pc2))
+
+fulldata.net.bin$diet <- diet.clean$Diet.5Cat[match(fulldata.net.bin$species, diet.clean$species)]
+
+#### Using full diet + body mass for PCA to analyze ecomorphospace occupation
+
+data.pca <- unique(diet.clean[, c(4, 5, 7, 8, 9, 10, 11, 12, 13, 14, 15)])
+data.pca$species <- gsub(" ", "_", data.pca$species)
+rownames(data.pca) <- data.pca$species
+
+pPCA.diet.mass <- phytools::phyl.pca(tr.drop, data.pca[, -c(1, 2)], scale = TRUE)
+biplot(pPCA.diet.mass, cex = c(0.1, 1))
+
+pcs.diet.mass <- as.data.frame(pPCA.diet.mass$S)
+pcs.diet.mass$diet <- diet.clean$Diet.5Cat[match(rownames(pcs.diet.mass), gsub(" ", "_", diet.clean$species))]
+
+
+pc1pc2 <-
+    ggplot(data = pcs.diet.mass) +
+    geom_point(aes(x = PC1, y = PC2, colour = diet), size = 3, alpha = 0.3) +
+    scale_colour_d3() +
+    theme_cowplot() +
+    theme(legend.position = "bottom")
+
+pc1pc3 <-
+    ggplot(data = pcs.diet.mass) +
+    geom_point(aes(x = PC1, y = PC3, colour = diet), size = 3, alpha = 0.3) +
+    scale_colour_d3() +
+    theme_cowplot() +
+    theme(legend.position = "bottom")
+
+pc2pc3 <-
+    ggplot(data = pcs.diet.mass) +
+    geom_point(aes(x = PC2, y = PC3, colour = diet), size = 3, alpha = 0.3) +
+    scale_colour_d3() +
+    theme_cowplot() +
+    theme(legend.position = "bottom")
+
+
+### Calculating disparity for dietary PC1
+dists.dietpc <- as.data.frame(as.matrix(dist(pcs.diet.mass[, -10], diag = TRUE, upper = TRUE)))
+dists.dietpc1 <- as.data.frame(as.matrix(dist(pcs.diet.mass[, 1], diag = TRUE, upper = TRUE)))
+
+
+disp.per.net1 <- data.frame(
+    network = unique(fulldata.net.bin$id),
+    amplitude = NA,
+    av.pdist = NA,
+    mnnd = NA,
+    lat = net.metadata$Latitude[match(unique(fulldata.net.bin$id), net.metadata$Network)],
+    clim.pc1 = NA,
+    clim.pc2 = NA
+)
+
+for(i in 1:nrow(disp.per.net1)){
+    temp <- as.character(fulldata.net.bin$species[fulldata.net.bin$id == disp.per.net1$network[i]])
+    dist.temp <- dists.dietpc1[match(temp, rownames(dists.dietpc)), match(temp, names(dists.dietpc))]
+    disp.per.net1$amplitude[i] <- max(dist.temp) - min(dist.temp)
+    disp.per.net1$av.pdist[i] <- mean(dist.temp[lower.tri(dist.temp)])
+    disp.per.net1$mnnd[i] <- mean(diff(sort(dist.temp[lower.tri(dist.temp)])))
+    disp.per.net1$clim.pc1[i] <- fulldata.net.bin$clim.pc1[match(disp.per.net1$network[i], fulldata.net.bin$id)]
+    disp.per.net1$clim.pc2[i] <- fulldata.net.bin$clim.pc2[match(disp.per.net1$network[i], fulldata.net.bin$id)]
+}
+
+## Disparities vs clim.pc1
+
+disp.1.amp.pc1 <-
+ggplot(data = disp.per.net1) +
+    geom_point(aes(x = clim.pc1, y = amplitude)) +
+    geom_smooth(aes(x = clim.pc1, y = amplitude), method = "lm", se = FALSE) +
+    labs(x = "Climatic PC1", y = "Amplitude") +
+    theme_cowplot()
+
+disp.1.av.pc1 <-
+ggplot(data = disp.per.net1) +
+    geom_point(aes(x = clim.pc1, y = av.pdist), size = 2) +
+    geom_smooth(aes(x = clim.pc1, y = av.pdist), method = "lm", se = FALSE, colour = brewer.pal(3, "Set1")[1]) +
+    labs(x = "Climatic PC1", y = "Average Pairwise Distance", size = "Amplitude") +
+    ylim(0, 0.5) +
+    theme_cowplot() +
+    theme(legend.position = "top")
+
+amp.av.diet.pc1 <- 
+ggplot(data = disp.per.net1) +
+    geom_point(aes(x = amplitude, y = av.pdist)) +
+    geom_smooth(aes(x = amplitude, y = av.pdist), method = "lm", se = FALSE) +
+    labs(x = "Amplitude", y = "Average Pairwise Distance") +
+    theme_cowplot()
+
+disp.1.mnnd.pc1 <-
+ggplot(data = disp.per.net1) +
+    geom_point(aes(x = clim.pc1, y = mnnd), size = 2) +
+    geom_smooth(aes(x = clim.pc1, y = mnnd), method = "lm", se = FALSE, colour = brewer.pal(3, "Set1")[1], linetype = "dotted") +
+    labs(x = "Climatic PC1", y = "Mean Nearest-Neighbor Distance") +
+    ylim(0, 0.5) +
+    theme_cowplot() +
+    theme(legend.position = "top")
+
+
+## Disparities vs clim.pc2
+
+disp.1.amp.pc2 <-
+ggplot(data = disp.per.net1) +
+    geom_point(aes(x = clim.pc2, y = amplitude)) +
+    geom_smooth(aes(x = clim.pc2, y = amplitude), method = "lm", se = FALSE) +
+    labs(x = "Climatic PC2", y = "Amplitude")
+
+disp.1.av.pc2 <-
+ggplot(data = disp.per.net1) +
+    geom_point(aes(x = clim.pc2, y = av.pdist)) +
+    geom_smooth(aes(x = clim.pc2, y = av.pdist), method = "lm", se = FALSE) +
+    labs(x = "Climatic PC2", y = "Average Pairwise Distance")
+
+disp.1.mnnd.pc2 <-
+ggplot(data = disp.per.net1) +
+    geom_point(aes(x = clim.pc2, y = mnnd)) +
+    geom_smooth(aes(x = clim.pc2, y = mnnd), method = "lm", se = FALSE) +
+    labs(x = "Climatic PC2", y = "Mean Nearest-Neighbor Distance")

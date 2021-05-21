@@ -1,0 +1,35 @@
+Network,n bird species,n plant species,n interactions,Interaction type,Location,Latitude,lat_dec,lat_hem,long_dec,long_hem,biome,dynamics
+BAIR,21,7,655,Quantitative,"Princeton, USA [1] ",Temperate,40.3318,N,74.6681,W,temp_forest,decline
+BEEH,9,31,1189,Quantitative,"Mount Missim, New Guinea [2]",Tropical,7.266667,S,146.7,E,trop_forest,decline
+CACG,15,25,230,Quantitative,"Caguana, Puerto Rico [3]",Tropical,18.295,N,66.781111,W,trop_forest,decline
+CACI,20,34,478,Quantitative,"Cialitos, Puerto Rico [3]",Tropical,18.339167,N,66.468889,W,trop_forest,decline
+CACO,13,25,122,Quantitative,"Cordillera, Puerto Rico [3]",Tropical,18.339167,N,66.468889,W,trop_forest,decline
+CAFR,15,21,118,Quantitative,"Fronton, Puerto Rico [3]",Tropical,18.339167,N,66.468889,W,trop_forest,decline
+CROM,7,72,143,Binary,Queensland [4],Tropical,17.85,S,146.083333,E,trop_forest,decline
+DOWS,15,120,333,Binary,"Highlands, Malawi [23]",Tropical,10.8,S,33.8,E,mont_grassland,expansion
+FROS,9,16,3267,Quantitative,"Mtunzini, South Africa [5]",Temperate,28.9597,S,31.7501,E,trop_forest,decline
+GEN_A,18,7,150,Quantitative,"Santa Genebra Reserve T1, Brazil [6]",Tropical,22.822222,S,47.111111,W,trop_forest,decline
+GEN_B,29,35,397,Quantitative,"Santa Genebra Reserve T2, Brazil [6]",Tropical,22.822222,S,47.111111,W,trop_forest,decline
+GORCH_A,7,37,29,Quantitative,"Loreto, Peru [18]",Tropical,4.916667,S,73.75,W,trop_forest,decline
+GORCH_B,6,6,200,Quantitative,"Loreto, Peru [18]",Tropical,4.916667,S,73.75,W,trop_forest,decline
+HAMM,16,29,175,Binary,"North Negros, Philippines [7]",Tropical,10.683333,N,123.183333,E,trop_forest,decline
+HRAT,17,16,34044,Quantitative,"Hato Rat�n, Spain [8]",Temperate,37.15,N,2.65,W,medit_grassland,expansion
+KANT,25,5,80,Binary,"Campeche state, Mexico [9]",Tropical,18.5054,N,89.3935,W,trop_forest,decline
+KITA,22,12,73,Binary,"Khao Yai, Thailand [20]",Tropical,14.166667,N,101.375,E,trop_forest,decline
+LAMB,60,25,504,Binary,"Krau Game Reserve, Malaysia [10]",Tropical,3.716667,N,102.283333,E,trop_forest,decline
+MACK,29,28,58,Binary,"Crater Mountain, New Guinea [11]",Tropical,6.723333,S,145.093333,E,trop_forest,decline
+MONT,40,169,666,Binary,"Monteverde, Costa Rica [12]",Tropical,10.3,N,84.8,W,trop_forest,decline
+NCOR,33,25,7010,Quantitative,"Nava Correhuelas, Spain [ P. Jordano, unpubl.] [13]",Temperate,38.1582,N,2.7382,W,medit_grassland,expansion
+NNOG,28,18,129,Binary,"Nava Noguera, Spain [ P. Jordano, unpubl.] [13]",Temperate,38.1582,N,2.7382,W,medit_grassland,expansion
+POULI_A,19,4,292,Quantitative,Panama [13],Tropical,8.966667,N,79.533333,W,trop_forest,decline
+POULI_B,11,13,1415,Quantitative,Panama [13],Tropical,8.966667,N,79.533333,W,trop_forest,decline
+SAAV_A,36,34,354,Quantitative,"Andes, Bolivia [21]",Tropical,16.410306,S,67.526967,W,trop_forest,decline
+SAAV_B,21,20,145,Quantitative,"Andes, Bolivia [21]",Tropical,16.410306,S,67.526967,W,trop_forest,decline
+SAPF,8,15,60,Quantitative,"Yakushima Island, Japan [14]",Temperate,30.3446,N,130.5127,E,trop_forest,decline
+SARM,8,28,41,Binary,"Atlantic forest, Brazil [22]",Tropical,8.966667,S,36.05,W,trop_forest,decline
+SCHLE,83,32,154,Quantitative,"Kakamega Forest, Kenya [17]",Tropical,0.283333,N,34.783333,E,trop_grassland,expansion
+SOREN,14,11,2745,Quantitative,"Wytham Woods, UK [16]",Temperate,51.7763,N,1.314,W,temp_forest,decline
+STEIB,31,31,844,Quantitative,"Hesse, Germany [13]",Temperate,50.6521,N,9.1624,E,temp_forest,decline
+VELHO_A,29,6,626,Quantitative,"Arunchal Pradesh, India [19]",Tropical,27,N,92.766667,E,trop_forest,decline
+VELHO_B,23,6,700,Quantitative,"Arunchal Pradesh, India [19]",Tropical,27.016667,N,92.55,E,temp_forest,decline
+WES,81,178,975,Binary,"Intervales and Saibadela, Brazil [15]",Tropical,14.268417,S,48.413806,W,trop_grassland,expansion

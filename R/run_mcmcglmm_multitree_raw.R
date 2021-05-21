@@ -1,0 +1,108 @@
+library("MCMCglmm")
+library("ape")
+library("caper")
+library("mulTree")
+library("reshape2")
+library("stringr")
+library("foreach")
+library("doMC")
+
+## Importing trees
+allfiles.eric <- list.files("./data/bamm/eric/", pattern = "eric")
+allfiles.hack <- list.files("./data/bamm/hack/", pattern = "hack")
+
+eric.trees <- lapply(paste0("./data/bamm/eric/", allfiles.eric[!grepl("\\_", allfiles.eric)]), read.tree)
+hack.trees <- lapply(paste0("./data/bamm/hack/", allfiles.hack[!grepl("\\_", allfiles.hack)]), read.tree)
+
+fulltrees <- c(eric.trees[1:56], hack.trees[1:56])
+
+## Network data was organized, processed and exported using a separate script
+
+source("./R/data_preparation_mcmcglmm.R")
+
+## Generating trees for MCMCglmm
+
+pglstrees <- lapply(fulltrees, function(x){drop.tip(x, tip = x$tip.label[is.na(match(x$tip.label, fulldata.net.bin$species))])})
+
+## Creating mulTree object
+class(pglstrees) <- "multiPhylo"
+
+## mulTree_data_zscore <- as.mulTree(data = fulldata.net.bin.zscore, tree = pglstrees, taxa = "species")
+mulTree_data_raw <- as.mulTree(data = fulldata.net.bin, tree = pglstrees, taxa = "species")
+
+my_priors <- list(R = list(V = 1/2, nu = 0.002),
+                  G = list(G1 = list(V = 1/2, nu = 0.002),
+                           G2 = list(V = 1/2, nu = 0.002)))
+
+my_formula_global <- "CENTR ~ log(epsilon.TREE) + log(netdiv.TREE) + log(epsilon.TREE):log(netdiv.TREE) + clim.pc1 + clim.pc2 + log(epsilon.TREE):clim.pc1 + log(epsilon.TREE):clim.pc2 + log(netdiv.TREE):clim.pc1 + log(netdiv.TREE):clim.pc2"
+
+my_formula_dynamics <- "CENTR ~ log(epsilon.TREE) + log(netdiv.TREE) + log(epsilon.TREE):log(netdiv.TREE) + clim.pc1 + clim.pc2 + dynamics + log(epsilon.TREE):clim.pc1 + log(epsilon.TREE):clim.pc2 + log(epsilon.TREE):dynamics + log(netdiv.TREE):clim.pc1 + log(netdiv.TREE):clim.pc2 + log(netdiv.TREE):dynamics + log(epsilon.TREE):clim.pc1:dynamics + log(epsilon.TREE):clim.pc2:dynamics + log(netdiv.TREE):clim.pc1:dynamics + log(netdiv.TREE):clim.pc2:dynamics + log(epsilon.TREE):log(netdiv.TREE):dynamics + clim.pc1:dynamics + clim.pc2:dynamics"
+
+my_formula_latitude <- "CENTR ~ log(epsilon.TREE) + log(netdiv.TREE) + log(epsilon.TREE):log(netdiv.TREE) + clim.pc1 + clim.pc2 + lat.clim + log(epsilon.TREE):clim.pc1 + log(epsilon.TREE):clim.pc2 + log(epsilon.TREE):lat.clim + log(netdiv.TREE):clim.pc1 + log(netdiv.TREE):clim.pc2 + log(netdiv.TREE):lat.clim + log(epsilon.TREE):clim.pc1:lat.clim + log(epsilon.TREE):clim.pc2:lat.clim + log(netdiv.TREE):clim.pc1:lat.clim + log(netdiv.TREE):clim.pc2:lat.clim + log(epsilon.TREE):log(netdiv.TREE):lat.clim + clim.pc1:lat.clim + clim.pc2:lat.clim"
+
+registerDoMC(56)
+
+## Building and running the models
+
+### Global + PCA
+fullmcmc.results.global.pca <- foreach(i = 1:112) %dopar% {
+    MCMCglmm(fixed = formula(gsub("CENTR", "pca", gsub("TREE", gsub("epsilon.", "", names(mulTree_data_raw$data)[25 + i], fixed = TRUE), my_formula_global))),
+             random = ~ animal + sp.col,
+             family = "gaussian",
+             ginverse = list(animal = inverseA(pglstrees[[i]])$Ainv),
+             nitt = c(5000000),
+             burnin = c(2500000),
+             thin = c(2500),
+             prior = my_priors,
+             data = mulTree_data_raw$data)
+}
+
+save(fullmcmc.results.global.pca, file = "./output/mcmcglmm_global_pca.RData")
+
+
+## ### Global + Degree
+## fullmcmc.results.global.degree <- foreach(i = 1:56) %dopar% {
+##     MCMCglmm(fixed = formula(gsub("CENTR", "degree.z", gsub("TREE", gsub("epsilon.", "", names(mulTree_data_raw$data)[25 + i], fixed = TRUE), my_formula_global))),
+##              random = ~ animal + sp.col,
+##              family = "gaussian",
+##              ginverse = list(animal = inverseA(pglstrees[[i]])$Ainv),
+##              nitt = c(5000000),
+##              burnin = c(2500000),
+##              thin = c(2500),
+##              prior = my_priors,
+##              data = mulTree_data_raw$data)
+## }
+
+## save(fullmcmc.results.global.degree, file = "./output/mcmcglmm_global_degree.RData")
+
+
+## ### Global + Closeness
+## fullmcmc.results.global.closeness <- foreach(i = 1:56) %dopar% {
+##     MCMCglmm(fixed = formula(gsub("CENTR", "closeness.z", gsub("TREE", gsub("epsilon.", "", names(mulTree_data_raw$data)[25 + i], fixed = TRUE), my_formula_global))),
+##              random = ~ animal + sp.col,
+##              family = "gaussian",
+##              ginverse = list(animal = inverseA(pglstrees[[i]])$Ainv),
+##              nitt = c(5000000),
+##              burnin = c(2500000),
+##              thin = c(2500),
+##              prior = my_priors,
+##              data = mulTree_data_raw$data)
+## }
+
+## save(fullmcmc.results.global.closeness, file = "./output/mcmcglmm_global_closeness.RData")
+
+
+## ### Global + katz
+## fullmcmc.results.global.katz <- foreach(i = 1:56) %dopar% {
+##     MCMCglmm(fixed = formula(gsub("CENTR", "katz.z", gsub("TREE", gsub("epsilon.", "", names(mulTree_data_raw$data)[25 + i], fixed = TRUE), my_formula_global))),
+##              random = ~ animal + sp.col,
+##              family = "gaussian",
+##              ginverse = list(animal = inverseA(pglstrees[[i]])$Ainv),
+##              nitt = c(5000000),
+##              burnin = c(2500000),
+##              thin = c(2500),
+##              prior = my_priors,
+##              data = mulTree_data_raw$data)
+## }
+
+## save(fullmcmc.results.global.katz, file = "./output/mcmcglmm_global_katz.RData")

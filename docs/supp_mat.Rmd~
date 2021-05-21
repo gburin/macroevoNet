@@ -1,0 +1,69 @@
+
+## Climatic PCA
+
+```{r fig1, fig.cap = "PCA of the climatic variables used in the study. It is worth noting that temperature variables align well with PC1 and precipitation align well with PC2 - although there is some of it on PC1 as well"}
+
+biplot(clim.pca)
+
+```
+
+## PCA centrality + Contribution to Nestedness
+
+```{r fig2, fig.width = 11, fig.height = 12, fig.cap = "A: PCA of the centrality metrics (degree, closeness and katz) used in the study. The PCA was calculated using all metrics scaled per network and combined in a single dataset and PC1 was used as the general centrality since it explains 93.38% of the total variance."}
+
+pca.cent <- autoplot(prcomp(full.table.bin[, c("degree.z", "closeness.z", "katz.z")], scale = FALSE), loadings = TRUE, loadings.label = TRUE, loadings.label.size = 8)
+pca.contrib <- ggplot(data = fulldata.net.bin) +
+  geom_point(aes(x = pca, y = contrib.nest, colour = lat.clim), alpha = 0.7) +
+  geom_smooth(aes(x = pca, y = contrib.nest, colour = lat.clim), method = "lm", se = FALSE, linetype = "dashed", alpha = 0.3, size = 0.5) +
+  scale_colour_brewer(palette = "Set1", direction = -1) +
+  labs(x = "PCA centrality", y = "Contribution to Nestedness", colour = "Latitude") +
+  theme(legend.position = "top")
+
+
+deg.contrib <- 
+ggplot(data = fulldata.net.bin) +
+  geom_point(aes(x = degree.z, y = contrib.nest, colour = lat.clim), alpha = 0.7) +
+  geom_smooth(aes(x = pca, y = contrib.nest, colour = lat.clim), method = "lm", se = FALSE, linetype = "dashed", alpha = 0.3, size = 0.5) +
+  scale_colour_brewer(palette = "Set1", direction = -1) +
+  labs(x = "Degree centrality", y = "Contribution to Nestedness", colour = "Latitude") +
+  theme(legend.position = "none")
+
+clos.contrib <- 
+ggplot(data = fulldata.net.bin) +
+  geom_point(aes(x = closeness.z, y = contrib.nest, colour = lat.clim), alpha = 0.7) +
+  geom_smooth(aes(x = pca, y = contrib.nest, colour = lat.clim), method = "lm", se = FALSE, linetype = "dashed", alpha = 0.3, size = 0.5) +
+  scale_colour_brewer(palette = "Set1", direction = -1) +
+  labs(x = "Closeness centrality", y = "Contribution to Nestedness", colour = "Latitude") +
+  theme(legend.position = "none")
+
+katz.contrib <- 
+ggplot(data = fulldata.net.bin) +
+  geom_point(aes(x = katz.z, y = contrib.nest, colour = lat.clim), alpha = 0.7) +
+  geom_smooth(aes(x = pca, y = contrib.nest, colour = lat.clim), method = "lm", se = FALSE, linetype = "dashed", alpha = 0.3, size = 0.5) +
+  scale_colour_brewer(palette = "Set1", direction = -1) +
+  labs(x = "Katz centrality", y = "Contribution to Nestedness", colour = "Latitude") +
+  theme(legend.position = "none")
+
+grid1 <- plot_grid(pca.cent,
+          pca.contrib,
+          align = 'h',
+          ncol = 2,
+          labels = LETTERS[1:2],
+          axis = "x"
+          )
+
+grid2 <- plot_grid(deg.contrib,
+          clos.contrib,
+          katz.contrib,
+          align = 'h',
+          ncol = 3,
+          labels = LETTERS[3:5],
+          axis = "x"
+          )
+
+plot_grid(grid1,
+          grid2,
+          nrow = 2
+          )
+
+```

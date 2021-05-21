@@ -1,0 +1,283 @@
+library("rmarkdown")
+library("ggfortify")
+library("kableExtra")
+source("./R/summary_mcmcglmm_global_zscore.R")
+source("./R/geog_similarity_plots.R")
+source("./R/tree_figure.R")
+
+medians.per.tree <- aggregate(posterior.raw.plot$value, by = list(posterior.raw.plot$tree, posterior.raw.plot$variable), FUN = median)
+names(medians.per.tree) <- c("tree", "variable", "value")
+
+fulldata.net.bin$epsilon.z <- unlist(aggregate(fulldata.net.bin$epsilon.eric0102, by = list(fulldata.net.bin$id), FUN = scale)$x)
+fulldata.net.bin$netdiv.z <- unlist(aggregate(fulldata.net.bin$netdiv.eric0102, by = list(fulldata.net.bin$id), FUN = scale)$x)
+
+epsilon.main <-
+  ggplot(data = fulldata.net.bin) +
+  geom_point(aes(x = epsilon.z, y = pca), alpha = 0.3) +
+  geom_abline(intercept = posterior.quants[1, "median"], slope = posterior.quants[2, "median"], colour = "red", size = 2) +
+  labs(x = "Extinction Fraction (Standardized)", y = "PCA centrality") +
+  ylim(-3, 8) +
+  theme_cowplot()
+
+netdiv.main <-
+  ggplot(data = fulldata.net.bin) +
+  geom_point(aes(x = netdiv.z, y = pca), alpha = 0.3) +
+  geom_abline(intercept = posterior.quants[1, "median"], slope = posterior.quants[3, "median"], colour = "blue", size = 2) +
+  labs(x = "Net Diversification (Standardized)", y = "PCA centrality") +
+  ylim(-3, 8) +
+  theme_cowplot()
+
+scatter.main <-
+plot_grid(epsilon.main,
+          netdiv.main,
+          nrow = 2,
+          align = 'v'
+)
+
+eps.post <-
+  ggplot(data = posterior.raw.plot[posterior.raw.plot$variable == "Epsilon",]) +
+  geom_violin(aes(x = 1, y = value), colour = colorRampPalette(brewer.pal(8, "Accent"))(9)[1], size = 0.5, fill = colorRampPalette(brewer.pal(8, "Accent"))(9)[1], alpha = 0.15) +
+  geom_hline(yintercept = 0, linetype = "dashed", colour = "darkgrey") +
+  geom_point(data = medians.per.tree[medians.per.tree$variable == "Epsilon",], aes(y = value, x = 1), size = 4, alpha = 0.5, shape = 124, colour = colorRampPalette(brewer.pal(8, "Accent"))(9)[1]) +
+  geom_segment(data = posterior.quants[2,], aes(x = 0.3, xend = 0.3, y = quant10, yend = quant90), size = 4, colour = colorRampPalette(brewer.pal(8, "Accent"))(9)[1], alpha = 0.75) +
+  geom_segment(data = posterior.quants[2,], aes(x = 0.3, xend = 0.3, y = quant2.5, yend = quant97.5), size = 1, colour = colorRampPalette(brewer.pal(8, "Accent"))(9)[1], alpha = 0.75) +
+  scale_colour_manual(values = colorRampPalette(brewer.pal(8, "Accent"))(9)) +
+  coord_flip() +
+  theme(legend.position = "none", axis.text.y = element_blank(), axis.title.y = element_blank(), axis.ticks.y = element_blank(), axis.line.y = element_blank()) +
+  labs(title = "Extinction Fraction", x = "Posterior Density", y = "Slope") +
+  ylim(-0.75, 0.75) +
+  xlim(0.1, 1.5)
+
+nd.post <-
+  ggplot(data = posterior.raw.plot[posterior.raw.plot$variable == "NetDiversification",]) +
+  geom_violin(aes(x = 1, y = value), colour = colorRampPalette(brewer.pal(8, "Accent"))(9)[2], size = 0.5, fill = colorRampPalette(brewer.pal(8, "Accent"))(9)[2], alpha = 0.15) +
+  geom_hline(yintercept = 0, linetype = "dashed", colour = "darkgrey") +
+  geom_point(data = medians.per.tree[medians.per.tree$variable == "NetDiversification",], aes(y = value, x = 1), size = 4, alpha = 0.5, shape = 124, colour = colorRampPalette(brewer.pal(8, "Accent"))(9)[2]) +
+  geom_segment(data = posterior.quants[3,], aes(x = 0.3, xend = 0.3, y = quant10, yend = quant90), size = 4, colour = colorRampPalette(brewer.pal(8, "Accent"))(9)[2], alpha = 0.75) +
+  geom_segment(data = posterior.quants[3,], aes(x = 0.3, xend = 0.3, y = quant2.5, yend = quant97.5), size = 1, colour = colorRampPalette(brewer.pal(8, "Accent"))(9)[2], alpha = 0.75) +
+  scale_colour_manual(values = colorRampPalette(brewer.pal(8, "Accent"))(9)) +
+  coord_flip() +
+  theme(legend.position = "none", axis.text.y = element_blank(), axis.title.y = element_blank(), axis.ticks.y = element_blank(), axis.line.y = element_blank()) +
+  labs(title = "Net Diversification", x = "Posterior Density", y = "Slope") +
+  ylim(-0.75, 0.75) +
+  xlim(0.1, 1.5)
+
+
+epsnd.post <-
+  ggplot(data = posterior.raw.plot[posterior.raw.plot$variable == "Epsilon:NetDiversification",]) +
+  geom_violin(aes(x = 1, y = value), colour = colorRampPalette(brewer.pal(8, "Accent"))(9)[3], size = 0.5, fill = colorRampPalette(brewer.pal(8, "Accent"))(9)[3], alpha = 0.15) +
+  geom_hline(yintercept = 0, linetype = "dashed", colour = "darkgrey") +
+  geom_point(data = medians.per.tree[medians.per.tree$variable == "Epsilon:NetDiversification",], aes(y = value, x = 1), size = 4, alpha = 0.5, shape = 124, colour = colorRampPalette(brewer.pal(8, "Accent"))(9)[3]) +
+  geom_segment(data = posterior.quants[6,], aes(x = 0.3, xend = 0.3, y = quant10, yend = quant90), size = 4, colour = colorRampPalette(brewer.pal(8, "Accent"))(9)[3], alpha = 0.75) +
+  geom_segment(data = posterior.quants[6,], aes(x = 0.3, xend = 0.3, y = quant2.5, yend = quant97.5), size = 1, colour = colorRampPalette(brewer.pal(8, "Accent"))(9)[3], alpha = 0.75) +
+  scale_colour_manual(values = colorRampPalette(brewer.pal(8, "Accent"))(9)) +
+  coord_flip() +
+  theme(legend.position = "none", axis.text.y = element_blank(), axis.title.y = element_blank(), axis.ticks.y = element_blank(), axis.line.y = element_blank()) +
+  labs(title = "Epsilon:NetDiversification", x = "Posterior Density", y = "Slope") +
+  ylim(-0.75, 0.75) +
+  xlim(0.1, 1.5)
+
+
+pc1.post <-
+  ggplot(data = posterior.raw.plot[posterior.raw.plot$variable == "PC1",]) +
+  geom_violin(aes(x = 1, y = value), colour = colorRampPalette(brewer.pal(8, "Accent"))(9)[4], size = 0.5, fill = colorRampPalette(brewer.pal(8, "Accent"))(9)[4], alpha = 0.15) +
+  geom_hline(yintercept = 0, linetype = "dashed", colour = "darkgrey") +
+  geom_point(data = medians.per.tree[medians.per.tree$variable == "PC1",], aes(y = value, x = 1), size = 4, alpha = 0.5, shape = 124, colour = colorRampPalette(brewer.pal(8, "Accent"))(9)[4]) +
+  geom_segment(data = posterior.quants[4,], aes(x = 0.3, xend = 0.3, y = quant10, yend = quant90), size = 4, colour = colorRampPalette(brewer.pal(8, "Accent"))(9)[4], alpha = 0.75) +
+  geom_segment(data = posterior.quants[4,], aes(x = 0.3, xend = 0.3, y = quant2.5, yend = quant97.5), size = 1, colour = colorRampPalette(brewer.pal(8, "Accent"))(9)[4], alpha = 0.75) +
+  scale_colour_manual(values = colorRampPalette(brewer.pal(8, "Accent"))(9)) +
+  coord_flip() +
+  theme(legend.position = "none", axis.text.y = element_blank(), axis.title.y = element_blank(), axis.ticks.y = element_blank(), axis.line.y = element_blank()) +
+  labs(title = "PC1 (Temperature)", x = "Posterior Density", y = "Slope") +
+  ylim(-0.4, 0.4) +
+  xlim(0.1, 1.5)
+
+
+pc2.post <-
+  ggplot(data = posterior.raw.plot[posterior.raw.plot$variable == "PC2",]) +
+  geom_violin(aes(x = 1, y = value), colour = colorRampPalette(brewer.pal(8, "Accent"))(9)[5], size = 0.5, fill = colorRampPalette(brewer.pal(8, "Accent"))(9)[5], alpha = 0.15) +
+  geom_hline(yintercept = 0, linetype = "dashed", colour = "darkgrey") +
+  geom_point(data = medians.per.tree[medians.per.tree$variable == "PC2",], aes(y = value, x = 1), size = 4, alpha = 0.5, shape = 124, colour = colorRampPalette(brewer.pal(8, "Accent"))(9)[5]) +
+  geom_segment(data = posterior.quants[5,], aes(x = 0.3, xend = 0.3, y = quant10, yend = quant90), size = 4, colour = colorRampPalette(brewer.pal(8, "Accent"))(9)[5], alpha = 0.75) +
+  geom_segment(data = posterior.quants[5,], aes(x = 0.3, xend = 0.3, y = quant2.5, yend = quant97.5), size = 1, colour = colorRampPalette(brewer.pal(8, "Accent"))(9)[5], alpha = 0.75) +
+  scale_colour_manual(values = colorRampPalette(brewer.pal(8, "Accent"))(9)) +
+  coord_flip() +
+  theme(legend.position = "none", axis.text.y = element_blank(), axis.title.y = element_blank(), axis.ticks.y = element_blank(), axis.line.y = element_blank()) +
+  labs(title = "PC2 (Precipitation)", x = "Posterior Density", y = "Slope") +
+  ylim(-0.4, 0.4) +
+  xlim(0.1, 1.5)
+
+
+epspc1.post <-
+  ggplot(data = posterior.raw.plot[posterior.raw.plot$variable == "Epsilon:PC1",]) +
+  geom_violin(aes(x = 1, y = value), colour = colorRampPalette(brewer.pal(8, "Accent"))(9)[6], size = 0.5, fill = colorRampPalette(brewer.pal(8, "Accent"))(9)[6], alpha = 0.15) +
+  geom_hline(yintercept = 0, linetype = "dashed", colour = "darkgrey") +
+  geom_point(data = medians.per.tree[medians.per.tree$variable == "Epsilon:PC1",], aes(y = value, x = 1), size = 4, alpha = 0.5, shape = 124, colour = colorRampPalette(brewer.pal(8, "Accent"))(9)[6]) +
+  geom_segment(data = posterior.quants[7,], aes(x = 0.3, xend = 0.3, y = quant10, yend = quant90), size = 4, colour = colorRampPalette(brewer.pal(8, "Accent"))(9)[6], alpha = 0.75) +
+  geom_segment(data = posterior.quants[7,], aes(x = 0.3, xend = 0.3, y = quant2.5, yend = quant97.5), size = 1, colour = colorRampPalette(brewer.pal(8, "Accent"))(9)[6], alpha = 0.75) +
+  scale_colour_manual(values = colorRampPalette(brewer.pal(8, "Accent"))(9)) +
+  coord_flip() +
+  theme(legend.position = "none", axis.text.y = element_blank(), axis.title.y = element_blank(), axis.ticks.y = element_blank(), axis.line.y = element_blank()) +
+  labs(title = "Epsilon:PC1", x = "Posterior Density", y = "Slope") +
+  ylim(-0.4, 0.4) +
+  xlim(0.1, 1.5)
+
+epspc2.post <-
+  ggplot(data = posterior.raw.plot[posterior.raw.plot$variable == "Epsilon:PC2",]) +
+  geom_violin(aes(x = 1, y = value), colour = colorRampPalette(brewer.pal(8, "Accent"))(9)[7], size = 0.5, fill = colorRampPalette(brewer.pal(8, "Accent"))(9)[7], alpha = 0.15) +
+  geom_hline(yintercept = 0, linetype = "dashed", colour = "darkgrey") +
+  geom_point(data = medians.per.tree[medians.per.tree$variable == "Epsilon:PC2",], aes(y = value, x = 1), size = 4, alpha = 0.5, shape = 124, colour = colorRampPalette(brewer.pal(8, "Accent"))(9)[7]) +
+  geom_segment(data = posterior.quants[8,], aes(x = 0.3, xend = 0.3, y = quant10, yend = quant90), size = 4, colour = colorRampPalette(brewer.pal(8, "Accent"))(9)[7], alpha = 0.75) +
+  geom_segment(data = posterior.quants[8,], aes(x = 0.3, xend = 0.3, y = quant2.5, yend = quant97.5), size = 1, colour = colorRampPalette(brewer.pal(8, "Accent"))(9)[7], alpha = 0.75) +
+  scale_colour_manual(values = colorRampPalette(brewer.pal(8, "Accent"))(9)) +
+  coord_flip() +
+  theme(legend.position = "none", axis.text.y = element_blank(), axis.title.y = element_blank(), axis.ticks.y = element_blank(), axis.line.y = element_blank()) +
+  labs(title = "Epsilon:PC2", x = "Posterior Density", y = "Slope") +
+  ylim(-0.4, 0.4) +
+  xlim(0.1, 1.5)
+
+
+ndpc1.post <-
+  ggplot(data = posterior.raw.plot[posterior.raw.plot$variable == "NetDiversification:PC1",]) +
+  geom_violin(aes(x = 1, y = value), colour = colorRampPalette(brewer.pal(8, "Accent"))(9)[8], size = 0.5, fill = colorRampPalette(brewer.pal(8, "Accent"))(9)[8], alpha = 0.15) +
+  geom_hline(yintercept = 0, linetype = "dashed", colour = "darkgrey") +
+  geom_point(data = medians.per.tree[medians.per.tree$variable == "NetDiversification:PC1",], aes(y = value, x = 1), size = 4, alpha = 0.5, shape = 124, colour = colorRampPalette(brewer.pal(8, "Accent"))(9)[8]) +
+  geom_segment(data = posterior.quants[9,], aes(x = 0.3, xend = 0.3, y = quant10, yend = quant90), size = 4, colour = colorRampPalette(brewer.pal(8, "Accent"))(9)[8], alpha = 0.75) +
+  geom_segment(data = posterior.quants[9,], aes(x = 0.3, xend = 0.3, y = quant2.5, yend = quant97.5), size = 1, colour = colorRampPalette(brewer.pal(8, "Accent"))(9)[8], alpha = 0.75) +
+  scale_colour_manual(values = colorRampPalette(brewer.pal(8, "Accent"))(9)) +
+  coord_flip() +
+  theme(legend.position = "none", axis.text.y = element_blank(), axis.title.y = element_blank(), axis.ticks.y = element_blank(), axis.line.y = element_blank()) +
+  labs(title = "NetDiversification:PC1", x = "Posterior Density", y = "Slope") +
+  ylim(-0.4, 0.4) +
+  xlim(0.1, 1.5)
+
+ndpc2.post <-
+  ggplot(data = posterior.raw.plot[posterior.raw.plot$variable == "NetDiversification:PC2",]) +
+  geom_violin(aes(x = 1, y = value), colour = colorRampPalette(brewer.pal(8, "Accent"))(9)[9], size = 0.5, fill = colorRampPalette(brewer.pal(8, "Accent"))(9)[9], alpha = 0.15) +
+  geom_hline(yintercept = 0, linetype = "dashed", colour = "darkgrey") +
+  geom_point(data = medians.per.tree[medians.per.tree$variable == "NetDiversification:PC2",], aes(y = value, x = 1), size = 4, alpha = 0.5, shape = 124, colour = colorRampPalette(brewer.pal(8, "Accent"))(9)[9]) +
+  geom_segment(data = posterior.quants[10,], aes(x = 0.3, xend = 0.3, y = quant10, yend = quant90), size = 4, colour = colorRampPalette(brewer.pal(8, "Accent"))(9)[9], alpha = 0.75) +
+  geom_segment(data = posterior.quants[10,], aes(x = 0.3, xend = 0.3, y = quant2.5, yend = quant97.5), size = 1, colour = colorRampPalette(brewer.pal(8, "Accent"))(9)[9], alpha = 0.75) +
+  scale_colour_manual(values = colorRampPalette(brewer.pal(8, "Accent"))(9)) +
+  coord_flip() +
+  theme(legend.position = "none", axis.text.y = element_blank(), axis.title.y = element_blank(), axis.ticks.y = element_blank(), axis.line.y = element_blank()) +
+  labs(title = "NetDiversification:PC2", x = "Posterior Density", y = "Slope") +
+  ylim(-0.4, 0.4) +
+  xlim(0.1, 1.5)
+
+row1 <- 
+  plot_grid(epsilon.main,
+            NULL,
+            netdiv.main,
+            ncol = 3,
+            align = 'v',
+            rel_widths = c(0.45, 0.1, 0.45)
+            )
+
+row2 <-
+  plot_grid(eps.post,
+            epsnd.post,
+            nd.post,
+            ncol = 3,
+            align = 'h')
+
+row3 <-
+  plot_grid(epspc1.post,
+            pc1.post,
+            ndpc1.post,
+            ncol = 3,
+            align = 'h')
+row4 <-
+  plot_grid(epspc2.post,
+            pc2.post,
+            ndpc2.post,
+            ncol = 3,
+            align = 'hv')
+
+plot_grid(row1,
+          row2,
+          row3,
+          row4,
+          nrow = 4,
+          rel_heights = c(0.6, 0.2, 0.2, 0.2)
+          )
+
+
+
+
+
+
+
+plot_grid(family.within.single0,
+          genus.within.single0,
+          family.within.full0,
+          genus.within.full0,
+          nrow = 2,
+          align = 'hv',
+          labels = LETTERS[1:4]
+          )
+
+
+
+
+
+int.tax <- read.csv("./data/interaction_per_taxonomy.csv")
+
+pc.diet <-
+  ggplot(data = pcs.diet.mass) +
+  geom_point(aes(x = PC1, y = PC2, colour = diet), size = 3, alpha = 0.3) +
+  scale_colour_d3() +
+  theme(legend.position = "bottom") +
+  geom_segment(x = 0, xend = pPCA.diet.mass$Evec[1,1], y = 0, yend = pPCA.diet.mass$Evec[1,2], colour = brewer.pal(3, "Set1")[1], arrow = arrow(length = unit(0.03, "npc"))) +
+  geom_text(x = pPCA.diet.mass$Evec[1,1] + 0.05, y = pPCA.diet.mass$Evec[1,2] - 0.05, label = "Invertebrates", colour = brewer.pal(3, "Set1")[1], size = 7) +
+  geom_segment(x = 0, xend = pPCA.diet.mass$Evec[5,1], y = 0, yend = pPCA.diet.mass$Evec[5,2], colour = brewer.pal(3, "Set1")[1], arrow = arrow(length = unit(0.03, "npc"))) +
+  geom_text(x = pPCA.diet.mass$Evec[5,1] - 0.05, y = pPCA.diet.mass$Evec[5,2] - 0.05, label = "Fruits", colour = brewer.pal(3, "Set1")[1], size = 7) +
+  geom_segment(x = 0, xend = pPCA.diet.mass$Evec[7,1], y = 0, yend = pPCA.diet.mass$Evec[7,2], colour = brewer.pal(3, "Set1")[1], arrow = arrow(length = unit(0.03, "npc"))) +
+  geom_text(x = pPCA.diet.mass$Evec[7,1], y = pPCA.diet.mass$Evec[7,2] + 0.05, label = "Seeds", colour = brewer.pal(3, "Set1")[1], size = 7) +
+  labs(x = "PC1 (51.4%)", y = "PC2 (28.5%", colour = "Dietary Guild") +
+  ylim(-0.5, 1.2) +
+  xlim(-1, 1) +
+  theme_cowplot() +
+  theme(legend.position = "top")
+
+pccent.phylodiv <-
+  ggplot(data = int.tax) +
+  geom_point(aes(x = pca, y = phylodiv)) +
+  geom_smooth(aes(x = pca, y = phylodiv), method = "lm", se = FALSE) +
+  labs(x = "PCA centrality", y = "Phylogenetic Diversity of Plants") +
+theme_cowplot()
+
+upper.row <-
+  plot_grid(
+    pccent.phylodiv,
+    pc.diet,
+    ncol = 2,
+    align = 'v',
+    labels = LETTERS[1:2]
+  )
+
+lower.row <-
+  plot_grid(disp.1.av.pc1,
+          disp.1.mnnd.pc1,
+          ncol = 2,
+          align = 'hv',
+          labels = LETTERS[3:4]
+          )
+
+## fig4 <- plot_grid(upper.row,
+##           lower.row,
+##           nrow = 2,
+##     #      rel_widths = c(0.6, 0.4),
+##           align = 'h'
+##           )
+
+fig4 <- plot_grid(
+    disp.1.av.pc1,
+    disp.1.mnnd.pc1,
+    pccent.phylodiv,
+    ncol = 3,
+    align = 'h',
+    labels = LETTERS[1:3]
+)
+
+ggsave(filename = "./output/fig3_final_legend.pdf", plot = fig4, width = 11, height = 5)
